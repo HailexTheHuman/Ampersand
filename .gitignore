@@ -1,5 +1,8 @@
+/notes/
 /archive/
 /reuter+50+50/
+/models/
+/old_models/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
