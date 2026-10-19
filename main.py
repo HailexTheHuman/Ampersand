@@ -11,6 +11,7 @@ import fastapi
 import uvicorn
 import psycopg2
 import bcrypt
+from cryptography.fernet import Fernet
 
 app = fastapi.FastAPI()
 
@@ -119,11 +120,6 @@ def check_user_credentials(user_id: int, username: str, password: str):
         cur = conn.cursor()
         cur.execute('SELECT password FROM "Users" WHERE user_id = %s AND username = %s', (user_id, username))
         user = cur.fetchone()
-        print(f"password: {password}")
-        print(f"password utf-8: {password.encode('utf-8')}")
-        # print(f"user: {user}")
-        print(f"actual password: {user[0].strip()}")
-        print(f"actual password utf-8: {user[0].strip().encode('utf-8')}")
         
         if user and bcrypt.checkpw(password.encode('utf-8'), user[0].strip().encode('utf-8')):
             return True
@@ -217,7 +213,7 @@ def get_notes(note: dict):
         )
         cur = conn.cursor()
         user_id = None
-        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        cur.execute('SELECT user_id, n_key FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         if user and author:
             user_id = user[0]
@@ -234,6 +230,8 @@ def get_notes(note: dict):
         elif not user:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
         notes_table = cur.fetchall()
+        n_key = user[1].encode('utf-8')
+        f = Fernet(n_key)
         notes = []
         authors = []
         for i in range(len(notes_table)):
@@ -245,7 +243,8 @@ def get_notes(note: dict):
                     authors.append(current_author[0])
             else:
                 authors.append(author)
-            notes.append(notes_table[i][0])
+            decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
+            notes.append(decrypted_note)
         return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes, "authors": authors})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
@@ -269,7 +268,7 @@ def create_note(note: dict):
         )
         cur = conn.cursor()
         user_id = None
-        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        cur.execute('SELECT user_id, n_key FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         if user:
             user_id = user[0]
@@ -282,7 +281,10 @@ def create_note(note: dict):
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
         if not alter_id:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
-        cur.execute('INSERT INTO "Notes" (alter_id, note, user_id) VALUES (%s, %s, %s)', (alter_id, note_text, user_id))
+        n_key = user[1].encode('utf-8')
+        f = Fernet(n_key)
+        encrypted_note = f.encrypt(note_text.encode('utf-8'))
+        cur.execute('INSERT INTO "Notes" (alter_id, note, user_id) VALUES (%s, %s, %s)', (alter_id, encrypted_note.decode('utf-8'), user_id))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Note created successfully"})
     except Exception as e:
@@ -298,6 +300,7 @@ def create_user(user: dict):
     username = user.get("username")
     email = user.get("email")
     password = user.get("password")
+    key = Fernet.generate_key()
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -307,10 +310,8 @@ def create_user(user: dict):
             port="5432"
         )
         cur = conn.cursor()
-        print(f"password: {password}")
         encrypted_password = str(encrypt_password(password).decode('utf-8'))
-        print(f"Encrypted password: {encrypted_password}")
-        cur.execute('INSERT INTO "Users" (username, email, password) VALUES (%s, %s, %s)', (username, email, encrypted_password))
+        cur.execute('INSERT INTO "Users" (username, email, password, n_key) VALUES (%s, %s, %s, %s)', (username, email, encrypted_password, key.decode('utf-8')))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "User created successfully"})
     except Exception as e:
