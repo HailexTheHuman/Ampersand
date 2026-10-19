@@ -103,23 +103,29 @@ def test_model(classifier, vectorizer, testing_path):
 
 
 def encrypt_password(password: str):
-    salt = bcrypt.gensalt(10)
+    salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed
 
-def check_user_credentials(username: str, password: str):
+def check_user_credentials(user_id: int, username: str, password: str):
     try:
         conn = psycopg2.connect(
             host="localhost",
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute("SELECT password FROM users WHERE username = %s", (username,))
+        cur.execute('SELECT password FROM "Users" WHERE user_id = %s AND username = %s', (user_id, username))
         user = cur.fetchone()
-        if user and bcrypt.checkpw(password.encode('utf-8'), user[0]):
+        print(f"password: {password}")
+        print(f"password utf-8: {password.encode('utf-8')}")
+        # print(f"user: {user}")
+        print(f"actual password: {user[0].strip()}")
+        print(f"actual password utf-8: {user[0].strip().encode('utf-8')}")
+        
+        if user and bcrypt.checkpw(password.encode('utf-8'), user[0].strip().encode('utf-8')):
             return True
     except Exception as e:
         print(f"Error checking user credentials: {e}")
@@ -149,19 +155,43 @@ def train_model(path: str, corpus = None, labels = None):
 def transfer_learning(corpus: list, labels: list, user_id: int):
     pass
 
-@app.get("/user/{user_id}")
-def get_user(user_id: int, username: str, password: str):
+
+def save_model_to_database(user_id: int, model_path: str):
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        if check_user_credentials(username, password):
-            cur.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
+        cur.execute('INSERT INTO "Models" (user_id, model_path) VALUES (%s, %s)', (user_id, model_path))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=200, content={"message": "Model saved successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+@app.get("/user")
+def get_user(user: dict):
+    user_id = user.get("user_id")
+    username = user.get("username")
+    password = user.get("password")
+    try:
+        conn = psycopg2.connect(
+            host="localhost", #replace with cloud database host when deployed
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        if check_user_credentials(user_id, username, password):
+            cur.execute('SELECT * FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
             return fastapi.responses.JSONResponse(status_code=200, content={"user": user})
         else:
@@ -173,20 +203,50 @@ def get_user(user_id: int, username: str, password: str):
             cur.close()
             conn.close()
 
-@app.get("/note/{user_id}")
-def get_notes(user_id: int, author: str):
+@app.get("/notes")
+def get_notes(note: dict):
+    username = note.get("username")
+    author = note.get("author")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute("SELECT * FROM notes WHERE user_id = %s and author = %s", (user_id, author))
-        notes = cur.fetchall()
-        return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes})
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user and author:
+            user_id = user[0]
+            alter_id = None
+            cur.execute('SELECT alter_id FROM "Alters" WHERE user_id = %s and name = %s', (user_id, author))
+            alter = cur.fetchone()
+            if not alter:
+                return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+            alter_id = alter[0]
+            cur.execute('SELECT note FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
+        elif user and not author:
+            user_id = user[0]
+            cur.execute('SELECT note, alter_id FROM "Notes" WHERE user_id = %s', (user_id,))
+        elif not user:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        notes_table = cur.fetchall()
+        notes = []
+        authors = []
+        for i in range(len(notes_table)):
+            current_author = None
+            if not author:
+                cur.execute('SELECT name FROM "Alters" WHERE alter_id = %s', (notes_table[i][1],))
+                current_author = cur.fetchone()
+                if current_author:
+                    authors.append(current_author[0])
+            else:
+                authors.append(author)
+            notes.append(notes_table[i][0])
+        return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes, "authors": authors})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:
@@ -194,18 +254,35 @@ def get_notes(user_id: int, author: str):
             cur.close()
             conn.close()
 
-@app.post("/note/{user_id}")
-def create_note(user_id: int, note: str, author: str):
+@app.post("/note")
+def create_note(note: dict):
+    username = note.get("username")
+    note_text = note.get("note")
+    author = note.get("author")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute("INSERT INTO notes (user_id, note, author) VALUES (%s, %s, %s)", (user_id, note, author))
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+            alter_id = None
+            cur.execute('SELECT alter_id FROM "Alters" WHERE user_id = %s and name = %s', (user_id, author))
+            alter = cur.fetchone()
+            if alter:
+                alter_id = alter[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        if not alter_id:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+        cur.execute('INSERT INTO "Notes" (alter_id, note, user_id) VALUES (%s, %s, %s)', (alter_id, note_text, user_id))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Note created successfully"})
     except Exception as e:
@@ -215,21 +292,57 @@ def create_note(user_id: int, note: str, author: str):
             cur.close()
             conn.close()
 
-@app.post("/user/")
-def create_user(username: str, email: str, password: str):
+@app.post("/user")
+# def create_user(username: str, email: str, password: str):
+def create_user(user: dict):
+    username = user.get("username")
+    email = user.get("email")
+    password = user.get("password")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        encrypted_password = encrypt_password(password)
-        cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, encrypted_password))
+        print(f"password: {password}")
+        encrypted_password = str(encrypt_password(password).decode('utf-8'))
+        print(f"Encrypted password: {encrypted_password}")
+        cur.execute('INSERT INTO "Users" (username, email, password) VALUES (%s, %s, %s)', (username, email, encrypted_password))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "User created successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e), "username": username, "email": email, "password": password})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+@app.post("/alter")
+def create_alter(alter: dict):
+    username = alter.get("username")
+    alter_name = alter.get("alter_name")
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('INSERT INTO "Alters" (user_id, name) VALUES (%s, %s)', (user_id, alter_name))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=200, content={"message": "Alter created successfully"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:
@@ -237,20 +350,37 @@ def create_user(username: str, email: str, password: str):
             cur.close()
             conn.close()
 
-@app.post("/alter/")
-def create_alter(user_id: int, name: str):
+
+@app.get("/alters")
+def get_user(user: dict):
+    username = user.get("username")
     try:
         conn = psycopg2.connect(
-            host="localhost",
-            database="your_database",
-            user="your_username",
-            password="your_password",
+            host="localhost", #replace with cloud database host when deployed
+            database="Ampersand",
+            user="postgres",
+            password="password",
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute("INSERT INTO alters (user_id, name) VALUES (%s, %s)", (user_id, name))
-        conn.commit()
-        return fastapi.responses.JSONResponse(status_code=200, content={"message": "Alter created successfully"})
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id,))
+        alters_table = cur.fetchall()
+        if alters_table is None:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
+        alters = []
+        for i in range(len(alters_table)):
+            alters.append(alters_table[i][0])
+        if alters:
+            return fastapi.responses.JSONResponse(status_code=200, content={"alters": alters})
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:
