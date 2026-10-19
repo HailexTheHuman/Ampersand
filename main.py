@@ -15,33 +15,34 @@ from cryptography.fernet import Fernet
 
 app = fastapi.FastAPI()
 
-def save_model(classifier, vectorizer, model_path):
+def save_model(classifier, model_path):
     # TODO: update the model saving logic for hosted deployment
-    joblib.dump(classifier, os.path.join(model_path, 'classifier.pkl'))
-    joblib.dump(vectorizer, os.path.join(model_path, 'vectorizer.pkl'))
+    joblib.dump(classifier, os.path.join(model_path, '.pkl'))
+    # joblib.dump(vectorizer, os.path.join(model_path, 'vectorizer.pkl'))
 
 def load_model(model_path):
     # TODO: update the model loading logic for hosted deployment
-    classifier = joblib.load(os.path.join(model_path, 'classifier.pkl'))
-    vectorizer = joblib.load(os.path.join(model_path, 'vectorizer.pkl'))
-    return classifier, vectorizer
+    classifier = joblib.load(os.path.join(model_path, '.pkl'))
+    # vectorizer = joblib.load(os.path.join(model_path, 'vectorizer.pkl'))
+    return classifier
 
 
 def train_model(training_path=None, transfer_learning=False, model_path=None, author_notes_pairs=None):
     if not training_path and not author_notes_pairs:
         raise ValueError("Either 'training_path' or 'author_notes_pairs' must be provided")
     if transfer_learning and model_path:
-        old_classifier, old_vectorizer = load_model(model_path)
-        vectorizer = old_vectorizer
+        old_classifier = load_model(model_path)
     else:
-        vectorizer = HashingVectorizer()
-        classifier = SGDClassifier(warm_start=False)
+        classifier = SGDClassifier(warm_start=False, loss='modified_huber')
+    vectorizer = HashingVectorizer()
     corpus = []
     documents_term_matrixes = []
     authors_per_document = []
+    authors = []
     if training_path:
         for file in os.listdir(training_path):
             if (Path(os.path.join(training_path, file))).is_dir():
+                authors.append(file)
                 for fileName in os.listdir(os.path.join(training_path, file)):
                     with open(os.path.join(training_path, file, fileName), 'r') as f:
                         text = f.read()
@@ -53,7 +54,7 @@ def train_model(training_path=None, transfer_learning=False, model_path=None, au
             authors_per_document.append(author)
     documents_term_matrixes = vectorizer.fit_transform(corpus)
     if transfer_learning and model_path:
-        classifier = SGDClassifier(warm_start=True)
+        classifier = SGDClassifier(warm_start=True, loss='modified_huber')
         old_coef = old_classifier.coef_
         classes = []
         new_class_amount = 0
@@ -61,46 +62,121 @@ def train_model(training_path=None, transfer_learning=False, model_path=None, au
             if author not in old_classifier.classes_ and author not in classes:
                 classes.append(author)
                 new_class_amount += 1
+            elif author not in classes:
+                classes.append(author)
         old_intercept = old_classifier.intercept_
         new_intercept = old_intercept
-        new_coef = np.concatenate([old_coef, np.zeros((new_class_amount-old_coef.shape[0], old_coef.shape[1]))])
-        new_intercept = np.concatenate([new_intercept, np.zeros(new_class_amount-old_intercept.shape[0])])
-        classifier.fit(documents_term_matrixes, authors_per_document, coef_init=new_coef, intercept_init=new_intercept)
+        if new_class_amount > 0:
+            if new_class_amount > len(old_classifier.classes_):
+                new_coef = np.concatenate([old_coef, np.zeros((new_class_amount-old_coef.shape[0], old_coef.shape[1]))])
+                new_intercept = np.concatenate([new_intercept, np.zeros(new_class_amount-old_intercept.shape[0])])
+                classifier.fit(documents_term_matrixes, authors_per_document, coef_init=new_coef, intercept_init=new_intercept)
+            elif new_class_amount == len(old_classifier.classes_) and new_class_amount == len(classes):
+                classifier.fit(documents_term_matrixes, authors_per_document, coef_init=old_coef, intercept_init=old_intercept)
+            elif new_class_amount < len(old_classifier.classes_):
+                new_coef = old_coef[:new_class_amount]
+                new_intercept = old_intercept[:new_class_amount]
+                classifier.fit(documents_term_matrixes, authors_per_document, coef_init=new_coef, intercept_init=new_intercept)
+        elif len(classes) != len(old_classifier.classes_):
+            print(f"classes {classes}")
+            new_coef = old_coef[:len(classes)]
+            new_intercept = old_intercept[:len(classes)]
+            classifier.fit(documents_term_matrixes, authors_per_document, coef_init=new_coef, intercept_init=new_intercept)
+        else:
+            classifier.fit(documents_term_matrixes, authors_per_document, coef_init=old_coef, intercept_init=old_intercept)
     else:
         classifier.fit(documents_term_matrixes, authors_per_document)
     predictions = []
-    for document in documents_term_matrixes:
-        predictions.append(classifier.predict(document)[0])
+    predictions = classifier.predict(documents_term_matrixes)
+    # print(f"proba stuff: {classifier.predict_proba(documents_term_matrixes)}")
     f1 = metrics.f1_score(authors_per_document, predictions, average='macro')
     print(f"F1 Score: {f1}")
     score = classifier.score(documents_term_matrixes, authors_per_document)
     print(f"Accuracy: {score}")
-    return classifier, vectorizer
+    probabilities_arr = classifier.predict_proba(documents_term_matrixes)
+    predictions2 = []
+    for probabilities in probabilities_arr:
+        probabilities_sort = [probability for probability in probabilities]
+        probabilities_sort.sort()
+        curr_max = probabilities_sort[-1]
+        for index_m in range(len(probabilities)):
+        #     print(f"curr_argmax {curr_max}")
+        #     print(f"logits {logits[index_m]}")
+            if probabilities[index_m] == curr_max:
+                predictions2.append(authors[index_m])
+                break
+    f1 = metrics.f1_score(authors_per_document, predictions2, average='macro')
+    print(f"F1 probabilities Score: {f1}")
+    return classifier
 
 
-def test_model(classifier, vectorizer, testing_path):
+
+def test_model(classifier, testing_path=None, author_note_pairs=None):
+    vectorizer = HashingVectorizer()
     test_corpus = []
     test_authors = []
     test_matrix = []
-    for file in os.listdir(testing_path):
-        if (Path(os.path.join(testing_path, file))).is_dir():
-            for fileName in os.listdir(os.path.join(testing_path, file)):
-                with open(os.path.join(testing_path, file, fileName), 'r') as f:
-                    text = f.read()
-                    test_corpus.append(text.lower())
-                    test_authors.append(file)
+    authors = []
+    if testing_path:
+        for file in os.listdir(testing_path):
+            if (Path(os.path.join(testing_path, file))).is_dir():
+                authors.append(file)
+                for fileName in os.listdir(os.path.join(testing_path, file)):
+                    with open(os.path.join(testing_path, file, fileName), 'r') as f:
+                        text = f.read()
+                        test_corpus.append(text.lower())
+                        test_authors.append(file)
+    elif author_note_pairs:
+        for author, note in author_note_pairs:
+            if author not in authors:
+                authors.append(author)
+            test_corpus.append(note.lower())
+            test_authors.append(author)
+    else:
+        raise ValueError("Either 'testing_path' or 'author_notes_pairs' must be provided")
     test_matrix = vectorizer.transform(test_corpus)
     predictions = []
-    for i, document in enumerate(test_corpus):
-        X_test = test_matrix[i]
-        predicted_author = classifier.predict(X_test)
-        predictions.append(predicted_author[0])
+    predictions = classifier.predict(test_matrix)
     f1 = metrics.f1_score(test_authors, predictions, average='macro')
     print(f"F1 Score: {f1}")
     score = classifier.score(test_matrix, test_authors)
     print(f"Accuracy: {score}")
+    return f1, score
 
-
+def check_model_train_requirements(user_id, username):
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id))
+        alters = cur.fetchall()
+        cur.execute('SELECT note_id FROM "Notes" WHERE user_id = %s', (user_id))
+        note_for_amount = cur.fetchall()
+        if len(alters) > 2 and len(notes) % 10 == 0:
+            cur.execute('SELECT n_key FROM "User" WHERE user_id = %s', (user_id))
+            user = cur.fetchone()
+            n_key = user[0].encode('utf-8')
+            f = Fernet(n_key)
+            cur.execute('SELECT N.note, A.name FROM "Notes" as N join "Alters" as A on A.alter_id = N.alter_id WHERE N.user_id = %s', (user_id))
+            notes_table = cur.fetchall()
+            notes = []
+            authors = []
+            for i in range(len(notes_table)):
+                authors.append(notes_table[i][1])
+                decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
+                notes.append(decrypted_note)
+            transfer_learning(zip(authors, notes), user_id, username)
+    except Exception as e:
+        print(f"error checking if we should train {e}")
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
 
 
 def encrypt_password(password: str):
@@ -132,24 +208,67 @@ def read_root():
     return {"Hello": "World"}
 
 @app.post("/predict/")
-def create_item(text: str):
-    # Process the input text and make a prediction
-    # This is a placeholder - replace with actual model prediction logic
+def predict(user_text: dict):
+    user = user_text.get('user')
+    text = user_text.get('text')
+    model_path = None
+    alters = []
     try:
-        prediction = "predicted_author"  # Replace with actual prediction
-        return fastapi.responses.JSONResponse(status_code=200, content={"prediction": prediction})
+        conn = psycopg2.connect(
+            host="localhost", #replace with cloud database host when deployed
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT model_path, user_id FROM "Users" WHERE username = %s', (user))
+        user = cur.fetchone()
+        model_path = user[0]
+        user_id = user[1]
+        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id))
+        alters = cur.fetchall()
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+    try:
+        model = load_model(model_path=model_path)
+        most_likely_prediction = model.predict(text)
+        probabilities = model.predict_proba(text)
+        predictions = {alters[i][0]:probabilities[i] for i in range(len(alters))}
+        return fastapi.responses.JSONResponse(status_code=200, content={"predictions": predictions, "most_likely": most_likely_prediction})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
 
-@app.post("/train/")
-def train_model(path: str, corpus = None, labels = None):
-    if not os.path.exists(path) and (not corpus or not labels):
-        return fastapi.responses.JSONResponse(status_code=400, content={"error": "Invalid input"})
-    pass
 
-@app.post("/transfer-learning/")
-def transfer_learning(corpus: list, labels: list, user_id: int):
-    pass
+# @app.post("/transfer-learning/")
+def transfer_learning(authors_corpus: zip, user_id: int, username: str):
+    import random
+    test_authors = []
+    test_notes = []
+    train_authors = []
+    train_notes = []
+    for author, note in authors_corpus:
+        if random.randint(0, 10) > 7:
+            test_authors.append(author)
+            test_notes.append(note)
+        else:
+            train_authors.append(author)
+            train_notes.append(note)
+    for author in test_authors:
+        if author not in train_authors:
+            print(f"training data missing author {author}")
+    train_author_notes = zip(train_authors, train_notes)
+    model = train_model(author_notes_pairs=train_author_notes)
+    test_author_notes = zip(test_authors, test_notes)
+    f1, score = test_model(model, author_note_pairs=test_author_notes)
+    if f1 > 0.6 and score > 0.6:
+        path = f'./models/{username}'
+        save_model(model, model_path=path)
+        save_model_to_database(user_id, path)
 
 
 def save_model_to_database(user_id: int, model_path: str):
@@ -162,7 +281,7 @@ def save_model_to_database(user_id: int, model_path: str):
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute('INSERT INTO "Models" (user_id, model_path) VALUES (%s, %s)', (user_id, model_path))
+        cur.execute('UPDATE "Users" SET model_path=%s WHERE user_id = %s;', (model_path, user_id))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Model saved successfully"})
     except Exception as e:
@@ -286,6 +405,9 @@ def create_note(note: dict):
         encrypted_note = f.encrypt(note_text.encode('utf-8'))
         cur.execute('INSERT INTO "Notes" (alter_id, note, user_id) VALUES (%s, %s, %s)', (alter_id, encrypted_note.decode('utf-8'), user_id))
         conn.commit()
+        # import random
+        # if random.randint(0, 10) > 7:
+        check_model_train_requirements(user_id, username)
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Note created successfully"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
@@ -295,7 +417,6 @@ def create_note(note: dict):
             conn.close()
 
 @app.post("/user")
-# def create_user(username: str, email: str, password: str):
 def create_user(user: dict):
     username = user.get("username")
     email = user.get("email")
@@ -325,6 +446,7 @@ def create_user(user: dict):
 def create_alter(alter: dict):
     username = alter.get("username")
     alter_name = alter.get("alter_name")
+    description = alter.get("description")
     try:
         conn = psycopg2.connect(
             host="localhost",
@@ -341,7 +463,10 @@ def create_alter(alter: dict):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('INSERT INTO "Alters" (user_id, name) VALUES (%s, %s)', (user_id, alter_name))
+        if description:
+            cur.execute('INSERT INTO "Alters" (user_id, name, description) VALUES (%s, %s, %s)', (user_id, alter_name, description))
+        else:
+            cur.execute('INSERT INTO "Alters" (user_id, name) VALUES (%s, %s)', (user_id, alter_name))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Alter created successfully"})
     except Exception as e:
@@ -371,13 +496,13 @@ def get_user(user: dict):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT name, description FROM "Alters" WHERE user_id = %s', (user_id,))
         alters_table = cur.fetchall()
         if alters_table is None:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
         alters = []
         for i in range(len(alters_table)):
-            alters.append(alters_table[i][0])
+            alters.append({"alter":alters_table[i][0], "description":alters_table[i][1]})
         if alters:
             return fastapi.responses.JSONResponse(status_code=200, content={"alters": alters})
         else:
