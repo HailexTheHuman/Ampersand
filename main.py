@@ -12,8 +12,23 @@ import uvicorn
 import psycopg2
 import bcrypt
 from cryptography.fernet import Fernet
+from fastapi.middleware.cors import CORSMiddleware
 
 app = fastapi.FastAPI()
+
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def save_model(classifier, model_path):
     # TODO: update the model saving logic for hosted deployment
@@ -292,10 +307,11 @@ def save_model_to_database(user_id: int, model_path: str):
             conn.close()
 
 @app.get("/user")
-def get_user(user: dict):
-    user_id = user.get("user_id")
-    username = user.get("username")
-    password = user.get("password")
+def get_user(username: str, password: str):
+    # user_id = user.get("user_id")
+    # username = user.get("username")
+    # password = user.get("password")
+    print("get /user hit")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -305,6 +321,10 @@ def get_user(user: dict):
             port="5432"
         )
         cur = conn.cursor()
+        cur = conn.cursor()
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        user_id = user[0]
         if check_user_credentials(user_id, username, password):
             cur.execute('SELECT * FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
@@ -312,7 +332,7 @@ def get_user(user: dict):
         else:
             return fastapi.responses.JSONResponse(status_code=401, content={"error": "Invalid credentials"})
     except Exception as e:
-        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+        return fastapi.responses.JSONResponse(status_code=404, content={"error": str(e)})
     finally:
         if conn:
             cur.close()
@@ -431,10 +451,14 @@ def create_user(user: dict):
             port="5432"
         )
         cur = conn.cursor()
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            return fastapi.responses.JSONResponse(status_code=409, content={"message": f"user {username} already exists"})
         encrypted_password = str(encrypt_password(password).decode('utf-8'))
         cur.execute('INSERT INTO "Users" (username, email, password, n_key) VALUES (%s, %s, %s, %s)', (username, email, encrypted_password, key.decode('utf-8')))
         conn.commit()
-        return fastapi.responses.JSONResponse(status_code=200, content={"message": "User created successfully"})
+        return fastapi.responses.JSONResponse(status_code=201, content={"message": "User created successfully"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e), "username": username, "email": email, "password": password})
     finally:
@@ -478,8 +502,8 @@ def create_alter(alter: dict):
 
 
 @app.get("/alters")
-def get_user(user: dict):
-    username = user.get("username")
+def get_user(username: str):
+    # username = user.get("username")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -496,13 +520,13 @@ def get_user(user: dict):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('SELECT name, description FROM "Alters" WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT name, description, alter_id FROM "Alters" WHERE user_id = %s', (user_id,))
         alters_table = cur.fetchall()
         if alters_table is None:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
         alters = []
         for i in range(len(alters_table)):
-            alters.append({"alter":alters_table[i][0], "description":alters_table[i][1]})
+            alters.append({"alter":alters_table[i][0], "description":alters_table[i][1], "alter_id":alters_table[i][2]})
         if alters:
             return fastapi.responses.JSONResponse(status_code=200, content={"alters": alters})
         else:
