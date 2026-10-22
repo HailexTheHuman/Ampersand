@@ -168,11 +168,11 @@ def check_model_train_requirements(user_id, username):
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id))
+        cur.execute('SELECT COUNT(name) FROM "Alters" WHERE user_id = %s', (user_id,))
         alters = cur.fetchall()
-        cur.execute('SELECT note_id FROM "Notes" WHERE user_id = %s', (user_id))
+        cur.execute('SELECT COUNT(note_id) FROM "Notes" WHERE user_id = %s', (user_id,))
         note_for_amount = cur.fetchall()
-        if len(alters) > 2 and len(notes) % 10 == 0:
+        if alters[0] > 5 and notes[0] % 10 == 0:
             cur.execute('SELECT n_key FROM "User" WHERE user_id = %s', (user_id))
             user = cur.fetchone()
             n_key = user[0].encode('utf-8')
@@ -339,9 +339,12 @@ def get_user(username: str, password: str):
             conn.close()
 
 @app.get("/notes")
-def get_notes(note: dict):
-    username = note.get("username")
-    author = note.get("author")
+# def get_notes(username: str, author: str | None):
+def get_notes(username: str):
+    # username = note.get("username")
+    # author = note.get("author")
+    # if author == "": author = None
+    author = None
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -362,29 +365,29 @@ def get_notes(note: dict):
             if not alter:
                 return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
             alter_id = alter[0]
-            cur.execute('SELECT note FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
+            cur.execute('SELECT note, note_id FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
         elif user and not author:
             user_id = user[0]
-            cur.execute('SELECT note, alter_id FROM "Notes" WHERE user_id = %s', (user_id,))
+            cur.execute('SELECT note, alter_id, note_id FROM "Notes" WHERE user_id = %s', (user_id,))
         elif not user:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
         notes_table = cur.fetchall()
         n_key = user[1].encode('utf-8')
         f = Fernet(n_key)
         notes = []
-        authors = []
+        # authors = []
         for i in range(len(notes_table)):
             current_author = None
             if not author:
                 cur.execute('SELECT name FROM "Alters" WHERE alter_id = %s', (notes_table[i][1],))
                 current_author = cur.fetchone()
-                if current_author:
-                    authors.append(current_author[0])
-            else:
-                authors.append(author)
+                # if current_author:
+                #     authors.append(current_author[0])
+            # else:
+                # authors.append(author)
             decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
-            notes.append(decrypted_note)
-        return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes, "authors": authors})
+            notes.append({ "note":decrypted_note, "author":current_author, "note_id":notes_table[i][2]})
+        return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:
@@ -428,7 +431,7 @@ def create_note(note: dict):
         # import random
         # if random.randint(0, 10) > 7:
         check_model_train_requirements(user_id, username)
-        return fastapi.responses.JSONResponse(status_code=200, content={"message": "Note created successfully"})
+        return fastapi.responses.JSONResponse(status_code=201, content={"message": "Note created successfully"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:

@@ -29,7 +29,7 @@ export default async function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-[20%] flex flex-col max-h-[100%] h-[97%]">
         <header className="py-5 items-center">
           <div className="container mx-auto  items-center">
             <h1 className="text-5xl text-center">Ampersand</h1>
@@ -40,6 +40,7 @@ export default async function RootLayout({ children }) {
                 <div className="flex items-center justify-between text-center max-w-7/10 ml-[85%]">
                   <a href="/profile">profile</a>
                   <a href="/notes">notes</a>
+                  <a href="/fronthistory">front history</a>
                   <a href="/logout">logout</a>
                 </div>
               }

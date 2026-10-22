@@ -7,7 +7,7 @@ export async function ListAlters({ username }) {
     return (
         <div>
             {await alters && alters.map((alter) => (
-                <div key={alter.alter_id} className="flex flex-col items-center text-center justify-between w-[20%] border-1 outline-grey-600 border-grey-600 rounded-md">
+                <div key={alter.alter_id} className="flex flex-col items-center text-center justify-between w-[20%] border-1 outline-gray-600 border-gray-600 rounded-md">
                     <p>name: {alter.alter}</p>
                     {alter.description && <p>description: {alter.description}</p>}
                 </div>
