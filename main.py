@@ -32,12 +32,12 @@ app.add_middleware(
 
 def save_model(classifier, model_path):
     # TODO: update the model saving logic for hosted deployment
-    joblib.dump(classifier, os.path.join(model_path, '.pkl'))
+    joblib.dump(classifier, Path(model_path+'.pkl'))
     # joblib.dump(vectorizer, os.path.join(model_path, 'vectorizer.pkl'))
 
 def load_model(model_path):
     # TODO: update the model loading logic for hosted deployment
-    classifier = joblib.load(os.path.join(model_path, '.pkl'))
+    classifier = joblib.load(Path(model_path+'.pkl'))
     # vectorizer = joblib.load(os.path.join(model_path, 'vectorizer.pkl'))
     return classifier
 
@@ -108,20 +108,20 @@ def train_model(training_path=None, transfer_learning=False, model_path=None, au
     print(f"F1 Score: {f1}")
     score = classifier.score(documents_term_matrixes, authors_per_document)
     print(f"Accuracy: {score}")
-    probabilities_arr = classifier.predict_proba(documents_term_matrixes)
-    predictions2 = []
-    for probabilities in probabilities_arr:
-        probabilities_sort = [probability for probability in probabilities]
-        probabilities_sort.sort()
-        curr_max = probabilities_sort[-1]
-        for index_m in range(len(probabilities)):
-        #     print(f"curr_argmax {curr_max}")
-        #     print(f"logits {logits[index_m]}")
-            if probabilities[index_m] == curr_max:
-                predictions2.append(authors[index_m])
-                break
-    f1 = metrics.f1_score(authors_per_document, predictions2, average='macro')
-    print(f"F1 probabilities Score: {f1}")
+    # probabilities_arr = classifier.predict_proba(documents_term_matrixes)
+    # predictions2 = []
+    # for probabilities in probabilities_arr:
+    #     probabilities_sort = [probability for probability in probabilities]
+    #     probabilities_sort.sort()
+    #     curr_max = probabilities_sort[-1]
+    #     for index_m in range(len(probabilities)):
+    #     #     print(f"curr_argmax {curr_max}")
+    #     #     print(f"logits {logits[index_m]}")
+    #         if probabilities[index_m] == curr_max:
+    #             predictions2.append(authors[index_m])
+    #             break
+    # f1 = metrics.f1_score(authors_per_document, predictions2, average='macro')
+    # print(f"F1 probabilities Score: {f1}")
     return classifier
 
 
@@ -159,6 +159,7 @@ def test_model(classifier, testing_path=None, author_note_pairs=None):
     return f1, score
 
 def check_model_train_requirements(user_id, username):
+    print("check train reqs")
     try:
         conn = psycopg2.connect(
             host="localhost",
@@ -172,12 +173,14 @@ def check_model_train_requirements(user_id, username):
         alters = cur.fetchall()
         cur.execute('SELECT COUNT(note_id) FROM "Notes" WHERE user_id = %s', (user_id,))
         note_for_amount = cur.fetchall()
-        if alters[0] > 5 and notes[0] % 10 == 0:
-            cur.execute('SELECT n_key FROM "User" WHERE user_id = %s', (user_id))
+        print(f"alters {alters[0][0]}")
+        print(f"note_for_amount {note_for_amount[0][0]}")
+        if alters[0][0] > 2 and note_for_amount[0][0] % 1 == 0:
+            cur.execute('SELECT n_key FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
             n_key = user[0].encode('utf-8')
             f = Fernet(n_key)
-            cur.execute('SELECT N.note, A.name FROM "Notes" as N join "Alters" as A on A.alter_id = N.alter_id WHERE N.user_id = %s', (user_id))
+            cur.execute('SELECT N.note, A.name FROM "Notes" as N join "Alters" as A on A.alter_id = N.alter_id WHERE N.user_id = %s', (user_id,))
             notes_table = cur.fetchall()
             notes = []
             authors = []
@@ -222,12 +225,11 @@ def check_user_credentials(user_id: int, username: str, password: str):
 def read_root():
     return {"Hello": "World"}
 
-@app.post("/predict/")
+@app.post("/predict")
 def predict(user_text: dict):
-    user = user_text.get('user')
-    text = user_text.get('text')
+    username = user_text.get('username')
+    text = user_text.get('note')
     model_path = None
-    alters = []
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -237,12 +239,10 @@ def predict(user_text: dict):
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute('SELECT model_path, user_id FROM "Users" WHERE username = %s', (user))
+        cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
+        print(f"user, {user}")
         model_path = user[0]
-        user_id = user[1]
-        cur.execute('SELECT name FROM "Alters" WHERE user_id = %s', (user_id))
-        alters = cur.fetchall()
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
     finally:
@@ -251,16 +251,27 @@ def predict(user_text: dict):
             conn.close()
     try:
         model = load_model(model_path=model_path)
-        most_likely_prediction = model.predict(text)
-        probabilities = model.predict_proba(text)
-        predictions = {alters[i][0]:probabilities[i] for i in range(len(alters))}
-        return fastapi.responses.JSONResponse(status_code=200, content={"predictions": predictions, "most_likely": most_likely_prediction})
+        print(f"model, {model}")
+        print(f"text, {text}")
+        vectorizer = HashingVectorizer()
+        document_term_matrix = vectorizer.fit_transform([text])
+        most_likely_prediction = model.predict(document_term_matrix)
+        print(f"most likely, {most_likely_prediction}")
+        probabilities = model.predict_proba(document_term_matrix)
+        print(f"probabilities, {probabilities}")
+        predictions = [{'name':str(model.classes_[i]), 'likelyhood':float(probabilities[0][i])} for i in range(len(model.classes_))]
+        # predictions.append({'most_likely':most_likely_prediction[0]})
+        print(f"prediction, {predictions}")
+        return fastapi.responses.JSONResponse(status_code=200, content={"predictions": predictions, "most_likely": most_likely_prediction[0]})
+        # return fastapi.responses.JSONResponse(status_code=200, content={"most_likely": most_likely_prediction})
+        # return fastapi.responses.JSONResponse(status_code=200, content=predictions)
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
 
 
 # @app.post("/transfer-learning/")
 def transfer_learning(authors_corpus: zip, user_id: int, username: str):
+    print("transfering")
     import random
     test_authors = []
     test_notes = []
@@ -277,7 +288,7 @@ def transfer_learning(authors_corpus: zip, user_id: int, username: str):
         if author not in train_authors:
             print(f"training data missing author {author}")
     train_author_notes = zip(train_authors, train_notes)
-    model = train_model(author_notes_pairs=train_author_notes)
+    model = train_model(author_notes_pairs=train_author_notes, transfer_learning=True, model_path='./models/base_classifier')
     test_author_notes = zip(test_authors, test_notes)
     f1, score = test_model(model, author_note_pairs=test_author_notes)
     if f1 > 0.6 and score > 0.6:
@@ -306,6 +317,32 @@ def save_model_to_database(user_id: int, model_path: str):
             cur.close()
             conn.close()
 
+@app.get("/canPredict")
+def can_predict(username: str):
+    try:
+        conn = psycopg2.connect(
+            host="localhost", #replace with cloud database host when deployed
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        model_path = user[0]
+        print(f"model path: {model_path}")
+        if model_path is not None:
+            return fastapi.responses.JSONResponse(status_code=200, content={"can_predict": True})
+        else:
+            return fastapi.responses.JSONResponse(status_code=401, content={"error": "model not ready"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=404, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
 @app.get("/user")
 def get_user(username: str, password: str):
     # user_id = user.get("user_id")
@@ -320,7 +357,6 @@ def get_user(username: str, password: str):
             password="password",
             port="5432"
         )
-        cur = conn.cursor()
         cur = conn.cursor()
         cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
@@ -365,10 +401,10 @@ def get_notes(username: str):
             if not alter:
                 return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
             alter_id = alter[0]
-            cur.execute('SELECT note, note_id FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
+            cur.execute('SELECT note, note_id, to_json(time_posted) FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
         elif user and not author:
             user_id = user[0]
-            cur.execute('SELECT note, alter_id, note_id FROM "Notes" WHERE user_id = %s', (user_id,))
+            cur.execute('SELECT note, alter_id, note_id, to_json(time_posted) FROM "Notes" WHERE user_id = %s', (user_id,))
         elif not user:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
         notes_table = cur.fetchall()
@@ -386,7 +422,7 @@ def get_notes(username: str):
             # else:
                 # authors.append(author)
             decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
-            notes.append({ "note":decrypted_note, "author":current_author, "note_id":notes_table[i][2]})
+            notes.append({ "note":decrypted_note, "author":current_author, "note_id":notes_table[i][2], "time":notes_table[i][3]})
         return fastapi.responses.JSONResponse(status_code=200, content={"notes": notes})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
@@ -400,6 +436,7 @@ def create_note(note: dict):
     username = note.get("username")
     note_text = note.get("note")
     author = note.get("author")
+    time = note.get("time")
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -426,7 +463,7 @@ def create_note(note: dict):
         n_key = user[1].encode('utf-8')
         f = Fernet(n_key)
         encrypted_note = f.encrypt(note_text.encode('utf-8'))
-        cur.execute('INSERT INTO "Notes" (alter_id, note, user_id) VALUES (%s, %s, %s)', (alter_id, encrypted_note.decode('utf-8'), user_id))
+        cur.execute('INSERT INTO "Notes" (alter_id, note, user_id, time_posted) VALUES (%s, %s, %s, %s)', (alter_id, encrypted_note.decode('utf-8'), user_id, time))
         conn.commit()
         # import random
         # if random.randint(0, 10) > 7:
@@ -504,6 +541,96 @@ def create_alter(alter: dict):
             conn.close()
 
 
+@app.put("/alter")
+def edit_alter(alter: dict):
+    username = alter.get("username")
+    old_name = alter.get("old_name")
+    new_name = alter.get("new_name")
+    description = alter.get("description")
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        if description and new_name:
+            cur.execute('UPDATE "Alters" set name = %s, description = %s WHERE user_id = %s and name = %s', (new_name, description, user_id, old_name,))
+        elif description:
+            cur.execute('UPDATE "Alters" set description = %s WHERE user_id = %s and name = %s', (description, user_id, old_name,))
+        else:
+            cur.execute('UPDATE "Alters" set name = %s WHERE user_id = %s and name = %s', (new_name, user_id, old_name,))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=200, content={"message": "Alter edited successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+
+@app.post("/front")
+def set_front(alter: dict):
+    username = alter.get("username")
+    alter_name = alter.get("alter_name")
+    time = alter.get("time")
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        alter_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('SELECT alter_id FROM "Alters" WHERE name = %s', (alter_name,))
+        alter_result = cur.fetchone()
+        if alter_result:
+            alter_id = alter_result[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+        cur.execute('SELECT alter_id FROM "Alters" WHERE is_fronting = TRUE')
+        old_alter = cur.fetchone()
+        old_alter_id = None
+        if old_alter:
+            old_alter_id = old_alter[0]
+        # else:
+        #     return fastapi.responses.JSONResponse(status_code=404, content={"error": "old Alter not found"})
+        cur.execute('UPDATE "Alters" SET is_fronting = FALSE WHERE is_fronting = TRUE', )
+        conn.commit()
+        cur.execute('UPDATE "Alters" SET is_fronting = TRUE WHERE alter_id = %s', (alter_id,))
+        conn.commit()
+        if old_alter_id:
+            cur.execute('UPDATE "FrontHistory" SET end_time = %s WHERE alter_id = %s and end_time is null', (time, old_alter_id,))
+            conn.commit()
+        cur.execute('INSERT INTO "FrontHistory" (user_id, alter_id, start_time) VALUES (%s, %s, %s)', (user_id, alter_id, time))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=201, content={"message": "Alter fronting successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
 @app.get("/alters")
 def get_user(username: str):
     # username = user.get("username")
@@ -523,13 +650,13 @@ def get_user(username: str):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('SELECT name, description, alter_id FROM "Alters" WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT name, description, alter_id, is_fronting FROM "Alters" WHERE user_id = %s', (user_id,))
         alters_table = cur.fetchall()
         if alters_table is None:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
         alters = []
         for i in range(len(alters_table)):
-            alters.append({"alter":alters_table[i][0], "description":alters_table[i][1], "alter_id":alters_table[i][2]})
+            alters.append({"alter":alters_table[i][0], "description":alters_table[i][1], "alter_id":alters_table[i][2], "is_fronting":alters_table[i][3]})
         if alters:
             return fastapi.responses.JSONResponse(status_code=200, content={"alters": alters})
         else:

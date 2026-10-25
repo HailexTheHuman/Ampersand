@@ -1,4 +1,5 @@
-import { AddNoteForm } from "@/components/addNotesForm";
+import { addNote } from "@/components/addNote";
+import { SendNoteForm } from "@/components/sendNotesForm";
 import { AuthorOptions } from "@/components/authorOptions";
 import { ListNotes } from "@/components/listNotes"
 import { cookies } from "next/headers"
@@ -13,7 +14,7 @@ export default async function Page() {
     return (
         <main className="flex flex-row max-h-[90%]">
             <ListNotes username={username}/>
-            <AddNoteForm username={username}/>
+            <SendNoteForm username={username} sendNote={addNote} notBlurry={true}/>
         </main>
     )
 }
