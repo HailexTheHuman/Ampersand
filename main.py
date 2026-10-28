@@ -158,7 +158,7 @@ def test_model(classifier, testing_path=None, author_note_pairs=None):
     print(f"Accuracy: {score}")
     return f1, score
 
-def check_model_train_requirements(user_id, username):
+def check_model_train_requirements(user_id, username, last_train_notes_amount, old_f1, old_accuracy):
     print("check train reqs")
     try:
         conn = psycopg2.connect(
@@ -175,7 +175,7 @@ def check_model_train_requirements(user_id, username):
         note_for_amount = cur.fetchall()
         print(f"alters {alters[0][0]}")
         print(f"note_for_amount {note_for_amount[0][0]}")
-        if alters[0][0] > 2 and note_for_amount[0][0] % 1 == 0:
+        if alters[0][0] >= 2 and note_for_amount[0][0] >= (last_train_notes_amount*1.5):
             cur.execute('SELECT n_key FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
             n_key = user[0].encode('utf-8')
@@ -188,7 +188,7 @@ def check_model_train_requirements(user_id, username):
                 authors.append(notes_table[i][1])
                 decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
                 notes.append(decrypted_note)
-            transfer_learning(zip(authors, notes), user_id, username)
+            transfer_learning(zip(authors, notes), user_id, username, len(notes), old_f1, old_accuracy)
     except Exception as e:
         print(f"error checking if we should train {e}")
     finally:
@@ -270,7 +270,7 @@ def predict(user_text: dict):
 
 
 # @app.post("/transfer-learning/")
-def transfer_learning(authors_corpus: zip, user_id: int, username: str):
+def transfer_learning(authors_corpus: zip, user_id: int, username: str, notes_amount: int, old_f1: float, old_accuracy: float):
     print("transfering")
     import random
     test_authors = []
@@ -292,12 +292,13 @@ def transfer_learning(authors_corpus: zip, user_id: int, username: str):
     test_author_notes = zip(test_authors, test_notes)
     f1, score = test_model(model, author_note_pairs=test_author_notes)
     if f1 > 0.6 and score > 0.6:
-        path = f'./models/{username}'
-        save_model(model, model_path=path)
-        save_model_to_database(user_id, path)
+        if f1 > old_f1 and score >old_accuracy:
+            path = f'./models/{username}'
+            save_model(model, model_path=path)
+            save_model_to_database(user_id, path, notes_amount)
 
 
-def save_model_to_database(user_id: int, model_path: str):
+def save_model_to_database(user_id: int, model_path: str, notes_amount: int):
     try:
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
@@ -307,7 +308,7 @@ def save_model_to_database(user_id: int, model_path: str):
             port="5432"
         )
         cur = conn.cursor()
-        cur.execute('UPDATE "Users" SET model_path=%s WHERE user_id = %s;', (model_path, user_id))
+        cur.execute('UPDATE "Users" SET model_path=%s, last_train_notes_amount=%s WHERE user_id = %s;', (model_path, notes_amount, user_id,))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=200, content={"message": "Model saved successfully"})
     except Exception as e:
@@ -447,7 +448,7 @@ def create_note(note: dict):
         )
         cur = conn.cursor()
         user_id = None
-        cur.execute('SELECT user_id, n_key FROM "Users" WHERE username = %s', (username,))
+        cur.execute('SELECT user_id, n_key, last_train_notes_amount, f1, accuracy FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         if user:
             user_id = user[0]
@@ -465,9 +466,10 @@ def create_note(note: dict):
         encrypted_note = f.encrypt(note_text.encode('utf-8'))
         cur.execute('INSERT INTO "Notes" (alter_id, note, user_id, time_posted) VALUES (%s, %s, %s, %s)', (alter_id, encrypted_note.decode('utf-8'), user_id, time))
         conn.commit()
-        # import random
-        # if random.randint(0, 10) > 7:
-        check_model_train_requirements(user_id, username)
+        last_train_notes_amount = user[2]
+        old_f1 = user[3]
+        old_accuracy = user[4]
+        check_model_train_requirements(user_id, username, last_train_notes_amount, old_f1, old_accuracy)
         return fastapi.responses.JSONResponse(status_code=201, content={"message": "Note created successfully"})
     except Exception as e:
         return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
@@ -631,6 +633,51 @@ def set_front(alter: dict):
             cur.close()
             conn.close()
 
+@app.get("/fronthistory")
+def get_history(username: str, year: str, month: str, day: str):
+    from datetime import date
+    today = date(int(year), int(month), int(day))
+    # print(f"today is {today}")
+    try:
+        conn = psycopg2.connect(
+            host="localhost", #replace with cloud database host when deployed
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('SELECT FH.front_id, A.name, to_json(FH.start_time), to_json(FH.end_time) FROM "FrontHistory" as FH join "Alters" as A on FH.alter_id = A.alter_id WHERE FH.user_id = %s and date(FH.end_time) = %s or FH.end_time is null', (user_id,today,))
+        history_table = cur.fetchall()
+        if history_table is None or len(history_table) < 1:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "No history found for the specified user"})
+        fronts = {}
+        for i in range(len(history_table)):
+            # if fronts[history_table[i][1]] is not None:
+            try:
+                fronts[history_table[i][1]].append({"front_id":history_table[i][0], "start_time":history_table[i][2], "end_time":history_table[i][3]})
+            except Exception:
+            # else:
+                fronts[history_table[i][1]] = [{"front_id":history_table[i][0], "name":history_table[i][1], "start_time":history_table[i][2], "end_time":history_table[i][3]}]
+        if fronts:
+            print(f"fronts: {fronts}")
+            return fastapi.responses.JSONResponse(status_code=200, content={"fronts": fronts})
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
 @app.get("/alters")
 def get_user(username: str):
     # username = user.get("username")
@@ -650,7 +697,7 @@ def get_user(username: str):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('SELECT name, description, alter_id, is_fronting FROM "Alters" WHERE user_id = %s', (user_id,))
+        cur.execute('SELECT name, description, alter_id, is_fronting FROM "Alters" WHERE user_id = %s order by name asc', (user_id,))
         alters_table = cur.fetchall()
         if alters_table is None:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "No alters found for the specified user"})

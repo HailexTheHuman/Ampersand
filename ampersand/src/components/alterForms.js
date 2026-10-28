@@ -39,11 +39,11 @@ export function AddAlterForm({ username }) {
             <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => addAlter(getAddFormData(), username)}>
                 <div className="w-full max-h-[40%] min-h-[20%] mt-[14%]">
                     <label htmlFor="name" className="">name</label>
-                    <input type="text" name="name" id="name" placeholder="name" className="border-2 outline-purple-700 border-purple-700 rounded-md" required/>
+                    <input type="text" name="name" id="name" placeholder="name" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[13%]" required/>
                 </div>
                 <div className="w-full max-h-[40%] min-h-[20%] ">
                     <label htmlFor="description" className="">description</label>
-                    <input type="text" name="description" id="description" placeholder="description" className="border-2 outline-purple-700 border-purple-700 rounded-md" required/>
+                    <input type="text" name="description" id="description" placeholder="description" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[2%]" required/>
                 </div>
                 <div className="w-full max-h-[40%] min-h-[20%] ">
                     <input type="submit" name="submit" id="submit" value={"Add alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
@@ -88,7 +88,7 @@ export function EditAlterForm({ username }) {
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black max-w-[40%] ml-[2%] max-h-[90%]">
             {/* <h3 id="message"></h3> */}
             <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => editAlter(getEditFormData(), username)}>
-                <div className="w-full max-h-[30%] min-h-[20%] mt-[14%]">
+                <div className="w-full max-h-[30%] min-h-[20%] mt-[7%]">
                     <label htmlFor="oldName" className="">old name</label>
                     <input type="text" name="oldName" id="oldName" placeholder="old name" className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                 </div>

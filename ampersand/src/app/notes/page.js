@@ -12,9 +12,9 @@ export default async function Page() {
     if (!username) redirect("/login")
 
     return (
-        <main className="flex flex-row max-h-[90%]">
+        <main className="flex flex-row max-h-[75%]">
             <ListNotes username={username}/>
-            <SendNoteForm username={username} sendNote={addNote} notBlurry={true}/>
+            <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
         </main>
     )
 }

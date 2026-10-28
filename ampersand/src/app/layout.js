@@ -32,6 +32,7 @@ export default async function RootLayout({ children }) {
       <body className="min-h-[20%] flex flex-col max-h-[100%] h-[97%]">
         <header className="py-5 items-center">
           <div className="container mx-auto  items-center">
+            <h2 className="text-2xl mb-[2%] text-center text-red-600">Disclaimer: this is being made by a college student for their capstone. This does not replace profressional help and machine learning is not perfect, use this as a tool not a solution.</h2>
             <h1 className="text-5xl text-center">Ampersand</h1>
             {/* <nav className="flex items-center justify-between text-center max-w-7/10 mx-[25%]"> */}
             <nav className="">

@@ -1,7 +1,7 @@
 "use client"
 
-import { useActionState, useState } from "react";
-import { AuthorOptions } from "./authorOptions";
+import { Children, useActionState, useState } from "react";
+// import { AuthorOptions } from "./authorOptions";
 
 
 const initialState = {
@@ -11,7 +11,7 @@ const initialState = {
 };
 
 
-export function SendNoteForm({ username, sendNote, notBlurry }) {
+export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
     const [state, formAction, isPending] = useActionState(sendNote, initialState);
 
@@ -35,7 +35,6 @@ export function SendNoteForm({ username, sendNote, notBlurry }) {
                 {state.most_likely && 
                 <div>
                     <h3>most likely: {state.most_likely}</h3>
-                    {/* <h3>total: {state.total}</h3> */}
                 </div>
                     }
             </div>
@@ -47,7 +46,8 @@ export function SendNoteForm({ username, sendNote, notBlurry }) {
                 {notBlurry &&
                 <div className="w-full">
                     <label htmlFor="author" className="mr-[3%]">author</label>
-                    <AuthorOptions username={username}/>
+                    {/* <AuthorOptions username={username}/> */}
+                    {children}
                 </div>
                 }
                 <div className="w-full h-[15%] mt-[3%]">

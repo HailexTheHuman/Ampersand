@@ -16,8 +16,7 @@ export async function getCurrentTimestampWithOffset() {
 }
 
 
-export async function addNote(formData) {
-
+export async function addNote(prevstate, formData) {
     const username = (await cookies()).get("username")?.value
     const note = formData.get("note")
     const author = formData.get("author")
@@ -42,5 +41,6 @@ export async function addNote(formData) {
         if (status == 201) {
             revalidatePath('/notes')
         }
+        return {predictions:false, most_likely:false, total:0}
     }
 }
