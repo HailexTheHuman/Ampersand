@@ -7,6 +7,7 @@ import { useEffect } from "react";
 export default function Page() {
     let has = hasCookie("username")
     deleteCookie("username")
+    deleteCookie("day")
     has = hasCookie("username")
     
     if (!has) {

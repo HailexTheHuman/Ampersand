@@ -9,12 +9,19 @@ export default async function Page() {
     const cookieStore = await cookies()
     const username = cookieStore.get("username")?.value
 
+    const respone = await fetch(`http://localhost:8080/canPredict?username=${username}`);
+    let jsonRes = await respone.json()
+    const canPredict = jsonRes.can_predict
+
     if (!username) redirect("/login")
 
     return (
-        <main className="flex flex-row max-h-[75%]">
+        <main className="flex flex-row max-h-[75%] h-[75%]">
             <ListNotes username={username}/>
-            <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
+            <div className="flex flex-col w-full h-full">
+                {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
+                <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
+            </div>
         </main>
     )
 }

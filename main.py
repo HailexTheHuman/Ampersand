@@ -108,20 +108,6 @@ def train_model(training_path=None, transfer_learning=False, model_path=None, au
     print(f"F1 Score: {f1}")
     score = classifier.score(documents_term_matrixes, authors_per_document)
     print(f"Accuracy: {score}")
-    # probabilities_arr = classifier.predict_proba(documents_term_matrixes)
-    # predictions2 = []
-    # for probabilities in probabilities_arr:
-    #     probabilities_sort = [probability for probability in probabilities]
-    #     probabilities_sort.sort()
-    #     curr_max = probabilities_sort[-1]
-    #     for index_m in range(len(probabilities)):
-    #     #     print(f"curr_argmax {curr_max}")
-    #     #     print(f"logits {logits[index_m]}")
-    #         if probabilities[index_m] == curr_max:
-    #             predictions2.append(authors[index_m])
-    #             break
-    # f1 = metrics.f1_score(authors_per_document, predictions2, average='macro')
-    # print(f"F1 probabilities Score: {f1}")
     return classifier
 
 
@@ -175,7 +161,7 @@ def check_model_train_requirements(user_id, username, last_train_notes_amount, o
         note_for_amount = cur.fetchall()
         print(f"alters {alters[0][0]}")
         print(f"note_for_amount {note_for_amount[0][0]}")
-        if alters[0][0] >= 2 and note_for_amount[0][0] >= (last_train_notes_amount*1.5):
+        if alters[0][0] >= 2 and ((last_train_notes_amount != 0 and note_for_amount[0][0] >= (last_train_notes_amount*1.5)) or note_for_amount[0][0] % 10 == 0):
             cur.execute('SELECT n_key FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
             n_key = user[0].encode('utf-8')
@@ -278,7 +264,10 @@ def transfer_learning(authors_corpus: zip, user_id: int, username: str, notes_am
     train_authors = []
     train_notes = []
     for author, note in authors_corpus:
-        if random.randint(0, 10) > 7:
+        if author not in train_authors:
+            train_authors.append(author)
+            train_notes.append(note)
+        elif random.randint(0, 10) > 7:
             test_authors.append(author)
             test_notes.append(note)
         else:
@@ -288,9 +277,16 @@ def transfer_learning(authors_corpus: zip, user_id: int, username: str, notes_am
         if author not in train_authors:
             print(f"training data missing author {author}")
     train_author_notes = zip(train_authors, train_notes)
-    model = train_model(author_notes_pairs=train_author_notes, transfer_learning=True, model_path='./models/base_classifier')
+    model = None
+    try:
+        model = train_model(author_notes_pairs=train_author_notes, transfer_learning=True, model_path='./models/base_classifier')
+    except Exception as e:
+        print(f"error trying to train: {e}")
     test_author_notes = zip(test_authors, test_notes)
-    f1, score = test_model(model, author_note_pairs=test_author_notes)
+    try:
+        f1, score = test_model(model, author_note_pairs=test_author_notes)
+    except Exception as e:
+        print(f"error trying to test: {e}")
     if f1 > 0.6 and score > 0.6:
         if f1 > old_f1 and score >old_accuracy:
             path = f'./models/{username}'
@@ -329,6 +325,9 @@ def can_predict(username: str):
             port="5432"
         )
         cur = conn.cursor()
+        cur.execute('SELECT user_id, last_train_notes_amount, f1, accuracy FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        check_model_train_requirements(user[0], username, user[1], user[2], user[3])
         cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         model_path = user[0]
@@ -402,10 +401,10 @@ def get_notes(username: str):
             if not alter:
                 return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
             alter_id = alter[0]
-            cur.execute('SELECT note, note_id, to_json(time_posted) FROM "Notes" WHERE alter_id = %s and user_id = %s', (alter_id, user_id))
+            cur.execute('SELECT note, note_id, to_json(time_posted) FROM "Notes" WHERE alter_id = %s and user_id = %s order by time_posted desc', (alter_id, user_id))
         elif user and not author:
             user_id = user[0]
-            cur.execute('SELECT note, alter_id, note_id, to_json(time_posted) FROM "Notes" WHERE user_id = %s', (user_id,))
+            cur.execute('SELECT note, alter_id, note_id, to_json(time_posted) FROM "Notes" WHERE user_id = %s order by time_posted desc', (user_id,))
         elif not user:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
         notes_table = cur.fetchall()
@@ -609,21 +608,21 @@ def set_front(alter: dict):
             alter_id = alter_result[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
-        cur.execute('SELECT alter_id FROM "Alters" WHERE is_fronting = TRUE')
-        old_alter = cur.fetchone()
-        old_alter_id = None
-        if old_alter:
-            old_alter_id = old_alter[0]
+        cur.execute('SELECT alter_id FROM "Alters" WHERE is_fronting = TRUE and user_id = %s', (user_id,))
+        old_alter = cur.fetchall()
+        print(f"old alter: {old_alter}")
         # else:
         #     return fastapi.responses.JSONResponse(status_code=404, content={"error": "old Alter not found"})
-        cur.execute('UPDATE "Alters" SET is_fronting = FALSE WHERE is_fronting = TRUE', )
-        conn.commit()
+        
         cur.execute('UPDATE "Alters" SET is_fronting = TRUE WHERE alter_id = %s', (alter_id,))
         conn.commit()
-        if old_alter_id:
-            cur.execute('UPDATE "FrontHistory" SET end_time = %s WHERE alter_id = %s and end_time is null', (time, old_alter_id,))
-            conn.commit()
-        cur.execute('INSERT INTO "FrontHistory" (user_id, alter_id, start_time) VALUES (%s, %s, %s)', (user_id, alter_id, time))
+        if old_alter:
+            for alt in old_alter:
+                cur.execute('UPDATE "FrontHistory" SET end_time = %s WHERE alter_id = %s and end_time is null', (time, alt[0],))
+                conn.commit()
+                cur.execute('UPDATE "Alters" SET is_fronting = FALSE WHERE is_fronting = TRUE and alter_id =%s', (alt[0],))
+                conn.commit()
+        cur.execute('INSERT INTO "FrontHistory" (user_id, alter_id, start_time) VALUES (%s, %s, %s)', (user_id, alter_id, time,))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=201, content={"message": "Alter fronting successfully"})
     except Exception as e:
@@ -633,12 +632,96 @@ def set_front(alter: dict):
             cur.close()
             conn.close()
 
+
+@app.put("/front")
+def add_front(alter: dict):
+    username = alter.get("username")
+    alter_name = alter.get("alter_name")
+    time = alter.get("time")
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        alter_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('SELECT alter_id FROM "Alters" WHERE name = %s', (alter_name,))
+        alter_result = cur.fetchone()
+        if alter_result:
+            alter_id = alter_result[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+        cur.execute('UPDATE "Alters" SET is_fronting = TRUE WHERE alter_id = %s', (alter_id,))
+        conn.commit()
+        cur.execute('INSERT INTO "FrontHistory" (user_id, alter_id, start_time) VALUES (%s, %s, %s)', (user_id, alter_id, time,))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=201, content={"message": "Alter fronting successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+
+@app.put("/sleep")
+def remove_front(alter: dict):
+    username = alter.get("username")
+    alter_name = alter.get("alter_name")
+    time = alter.get("time")
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            database="Ampersand",
+            user="postgres",
+            password="password",
+            port="5432"
+        )
+        cur = conn.cursor()
+        user_id = None
+        alter_id = None
+        cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
+        user = cur.fetchone()
+        if user:
+            user_id = user[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+        cur.execute('SELECT alter_id FROM "Alters" WHERE name = %s', (alter_name,))
+        alter_result = cur.fetchone()
+        if alter_result:
+            alter_id = alter_result[0]
+        else:
+            return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+        cur.execute('UPDATE "Alters" SET is_fronting = False WHERE alter_id = %s', (alter_id,))
+        conn.commit()
+        cur.execute('UPDATE "FrontHistory" SET end_time = %s WHERE alter_id = %s and end_time is null', (time, alter_id,))
+        conn.commit()
+        return fastapi.responses.JSONResponse(status_code=201, content={"message": "Alter fronting successfully"})
+    except Exception as e:
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if conn:
+            cur.close()
+            conn.close()
+
+
 @app.get("/fronthistory")
 def get_history(username: str, year: str, month: str, day: str):
-    from datetime import date
-    today = date(int(year), int(month), int(day))
     # print(f"today is {today}")
     try:
+        from datetime import date
+        print(f"year {year} month {month} day {day}")
+        today = date(int(year), int(month), int(day))
         conn = psycopg2.connect(
             host="localhost", #replace with cloud database host when deployed
             database="Ampersand",
@@ -654,7 +737,7 @@ def get_history(username: str, year: str, month: str, day: str):
             user_id = user[0]
         else:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
-        cur.execute('SELECT FH.front_id, A.name, to_json(FH.start_time), to_json(FH.end_time) FROM "FrontHistory" as FH join "Alters" as A on FH.alter_id = A.alter_id WHERE FH.user_id = %s and date(FH.end_time) = %s or FH.end_time is null', (user_id,today,))
+        cur.execute('SELECT FH.front_id, A.name, to_json(FH.start_time), to_json(FH.end_time) FROM "FrontHistory" as FH join "Alters" as A on FH.alter_id = A.alter_id WHERE FH.user_id = %s and (date(FH.end_time) = %s or FH.end_time is null or date(FH.start_time) = %s or (date(FH.end_time) > %s and date(FH.start_time) < %s))', (user_id,today,today,today,today))
         history_table = cur.fetchall()
         if history_table is None or len(history_table) < 1:
             return fastapi.responses.JSONResponse(status_code=404, content={"error": "No history found for the specified user"})

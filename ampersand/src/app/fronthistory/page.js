@@ -1,4 +1,5 @@
 import { ListFronts } from "@/components/listFronts"
+import { PickDay } from "@/components/pickDay";
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation";
 export const instant = false;
@@ -11,6 +12,8 @@ export default async function Page() {
 
     return (
         <div className="flex flex-col items-center w-full h-[78%]">
+            <h2>Front History</h2>
+            <PickDay />
             <ListFronts username={username}/>
         </div>
     )

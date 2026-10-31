@@ -8,9 +8,14 @@ export async function ListFronts({ username }) {
     await connection()
     
     const cookieStore = await cookies()
-    let today = cookieStore.get("day")?.value
-    if (!today) today = new Date()
-    setCookie("day", today, {maxAge: 3600})
+    // let today;
+    // let now = new Date()
+    // today = new Date(cookieStore.get("day").value)
+    // console.log("today: ", today)
+    // if (!today) today = now
+    let dayCookie = cookieStore.get("day")?.value
+    let today = dayCookie ? new Date(dayCookie) : new Date()
+    // setCookie("day", today.toUTCString(), {maxAge: 3600})
 
     console.log("username: ", username)
     let resultsF = await fetch(`http://localhost:8080/fronthistory?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
@@ -30,6 +35,7 @@ export async function ListFronts({ username }) {
     )
 }
 
+
 async function FrontDivs({ alters, fronts, today }) {
     let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
@@ -44,14 +50,14 @@ async function FrontDivs({ alters, fronts, today }) {
     let hours = ["Midnight", "11PM", "10PM", "9PM", "8PM", "7PM", "6PM", "5PM", "4PM", "3PM", "2PM", "1PM", "Noon", "11AM", "10AM", "9AM", "8AM", "7AM", "6AM", "5AM", "4AM", "3AM", "2AM", "1AM"]
     let hoursInt = [24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     let colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+    let alterI = 0
     return (
         <div className="relative flex flex-rows text-center w-[90%] h-[90%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto overflow-x-auto overscroll-x-auto  scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
             <div id="times" className="relative mx-[2%] h-[100%] min-w-[7%] w-[7%]">
-                <h4 className="h-[10%]">{months[month]} {date.toString()}, {year}</h4>
+                {/* <h4 className="fixed h-[10%] order-first">{months[month]} {date.toString()}, {year}</h4> */}
                 {
                     hours.map((hour, index) => {
                         return (
-                            // <p key={hour} className="h-[20%] my-[5%]">{hour}</p>
                             <div key={hour} className="absolute left-1/2 -translate-x-1/2 rounded-2xl"
                                 style={{
                                     height: `${((DAY_MS/24) / DAY_MS) * 100}%`,
@@ -61,35 +67,35 @@ async function FrontDivs({ alters, fronts, today }) {
                         )
                     })
                 }
+                <h4 className="fixed order-first bg-black">{months[month]} {date.toString()}, {year}</h4>
             </div>
-            {alters.map((alter, index) => {
+            {alters && alters.map((alter, index) => {
+                alterI++
                 console.log("current alter: ", alter)
                 return (
-                    <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[50%] ">
-                        <h4 className="h-[10%]">{alter.alter}</h4>
-                        {/* {
-                            hours.map((hour) => {
-                                let testClass = `h-[20%] my-[5%] w-[20%] mx-[40%] ${((hour.charCodeAt(0))%3==0 && (alter.alter.charCodeAt(0))%2==0) ? "bg-purple-500" : ""} rounded-2xl`
-                                return (
-                                    <div key={alter.alter+hour} id={alter.alter+hour} className={testClass}></div>
-                                )
-                            })
-                        } */}
+                    <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[1%] ">
+                        {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
-                            let startTime = new Date(front.start_time).getTime() < dayStart ? dayStart : (new Date(front.start_time).getTime())
-                            let endTime = front.end_time ? (new Date(front.end_time).getTime()) : (new Date().getTime())
-                            // let timeTaken = ((endTime)-(startTime))
-                            // let timeClass = `absolute bg-purple-600 h-[${((timeTaken)/DAY_MS)*100}%] text-purple-600 top-[${((dayEnd-endTime)/DAY_MS)*100}%] rounded-2xl`
+                            console.log("current front: ", front)
+
+                            let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
+                            let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
+                            if (endTime <= startTime) return null
+
+                            // let top = (((dayEnd - endTime) * 2 + 2 * 60 * 60 * 1000) / DAY_MS) * 100
+                            let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
+                            let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
                                 <div key={front.front_id} className="absolute left-1/2 w-4 -translate-x-1/2 rounded-2xl"
                                 style={{
-                                    height: `${((endTime - startTime)*2 / DAY_MS) * 100}%`,
-                                    top: `${(((dayEnd - endTime)*2 + (2*60*60*1000)) / DAY_MS) * 100}%`,
-                                    backgroundColor: colors[index]
+                                    height: `${height}%`,
+                                    top: `${top}%`,
+                                    backgroundColor: colors[index%colors.length]
                                 }}
                                 />
                             )
                         })}
+                        <h4 className="fixed min-w-[1%] w-[2%] max-w-[50%] -translate-x-[50%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
                     </div>
                 )
             })}

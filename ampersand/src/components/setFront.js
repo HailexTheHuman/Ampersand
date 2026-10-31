@@ -24,3 +24,45 @@ export async function SetFront(formData) {
         revalidatePath('/profile')
     }
 }
+
+
+
+export async function AddFront(formData) {
+    const username = (await cookies()).get("username")?.value
+    const alter_name = formData.get("name")
+    const time = await getCurrentTimestampWithOffset()
+    console.log("add front info: ", JSON.stringify({ username:username, alter_name:alter_name, time:time }))
+    const respone = await fetch('http://localhost:8080/front', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
+    });
+    let responeJ = await respone.json()
+    let status = respone.status
+    console.log("response: ", responeJ)
+    if (status == 201) {
+        revalidatePath('/profile')
+    }
+}
+
+export async function RemoveFront(formData) {
+    const username = (await cookies()).get("username")?.value
+    const alter_name = formData.get("name")
+    const time = await getCurrentTimestampWithOffset()
+    console.log("remove front info: ", JSON.stringify({ username:username, alter_name:alter_name, time:time }))
+    const respone = await fetch('http://localhost:8080/sleep', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
+    });
+    let responeJ = await respone.json()
+    let status = respone.status
+    console.log("response: ", responeJ)
+    if (status == 201) {
+        revalidatePath('/profile')
+    }
+}

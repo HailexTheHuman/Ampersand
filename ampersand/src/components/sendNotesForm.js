@@ -15,8 +15,8 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
     const [state, formAction, isPending] = useActionState(sendNote, initialState);
 
-    let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[64%] max-h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]" : "flex flex-1 w-full max-w-[100%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
-    let stylingForm = notBlurry ? "flex flex-col items-center text-center justify-between border-1 outline-gray-600 border-gray-600 rounded-md min-w-[55%] min-h-[55%]" : "flex flex-col items-center text-center justify-between border-1 outline-gray-600 border-gray-600 rounded-md min-w-[55%] min-h-[75%]"
+    let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[90%] max-h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]" : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
+    let stylingForm = notBlurry ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[55%]" : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]"
     return(
         <div className={stylingDiv}>
             <div className="flex flex-row items-center text-center justify-between w-[75%] max-h-[20%] max-w-[90%]">
@@ -39,14 +39,13 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
                     }
             </div>
             <form className={stylingForm} action={formAction}>
-                <div className="w-full flex items-center w-[75%] h-[75%] max-h-[90%] max-w-[90%]">
+                <div className="w-full flex flex-col flex-row items-center w-[75%] h-[75%] max-h-[90%] max-w-[90%]">
                     <label htmlFor="note" className="w-[15%]">note</label>
                     <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md min-w-[25%] min-h-[25%] w-[75%] h-[75%] resize max-w-[90%] max-h-[75%]" required/>
                 </div>
                 {notBlurry &&
                 <div className="w-full">
                     <label htmlFor="author" className="mr-[3%]">author</label>
-                    {/* <AuthorOptions username={username}/> */}
                     {children}
                 </div>
                 }
