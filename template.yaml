@@ -1,0 +1,16 @@
+Globals:
+  Function:
+    Runtime: python3.13.2
+
+Resources:
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: health.py
+      Handler: lambda_handler
+      Events:
+        HealthCheck:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: GET

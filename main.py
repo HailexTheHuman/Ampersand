@@ -35,12 +35,10 @@ app.add_middleware(
 def save_model(classifier, model_path):
     # TODO: update the model saving logic for hosted deployment
     joblib.dump(classifier, Path(model_path+'.pkl'))
-    # joblib.dump(vectorizer, os.path.join(model_path, 'vectorizer.pkl'))
 
 def load_model(model_path):
     # TODO: update the model loading logic for hosted deployment
     classifier = joblib.load(Path(model_path+'.pkl'))
-    # vectorizer = joblib.load(os.path.join(model_path, 'vectorizer.pkl'))
     return classifier
 
 
