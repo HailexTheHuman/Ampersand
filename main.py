@@ -10,12 +10,14 @@ import numpy as np
 import fastapi
 import uvicorn
 import psycopg2
+import awscrt
+import botocore
+import boto3
 import bcrypt
 from cryptography.fernet import Fernet
 from fastapi.middleware.cors import CORSMiddleware
 
 app = fastapi.FastAPI()
-
 
 origins = [
     "http://localhost:3000",
@@ -147,12 +149,21 @@ def test_model(classifier, testing_path=None, author_note_pairs=None):
 def check_model_train_requirements(user_id, username, last_train_notes_amount, old_f1, old_accuracy):
     print("check train reqs")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('SELECT COUNT(name) FROM "Alters" WHERE user_id = %s', (user_id,))
@@ -190,12 +201,21 @@ def encrypt_password(password: str):
 
 def check_user_credentials(user_id: int, username: str, password: str):
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('SELECT password FROM "Users" WHERE user_id = %s AND username = %s', (user_id, username))
@@ -217,12 +237,21 @@ def predict(user_text: dict):
     text = user_text.get('note')
     model_path = None
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
@@ -296,12 +325,21 @@ def transfer_learning(authors_corpus: zip, user_id: int, username: str, notes_am
 
 def save_model_to_database(user_id: int, model_path: str, notes_amount: int):
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('UPDATE "Users" SET model_path=%s, last_train_notes_amount=%s WHERE user_id = %s;', (model_path, notes_amount, user_id,))
@@ -317,12 +355,21 @@ def save_model_to_database(user_id: int, model_path: str, notes_amount: int):
 @app.get("/canPredict")
 def can_predict(username: str):
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('SELECT user_id, last_train_notes_amount, f1, accuracy FROM "Users" WHERE username = %s', (username,))
@@ -350,12 +397,22 @@ def get_user(username: str, password: str):
     # password = user.get("password")
     print("get /user hit")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
+        # auth_token = "ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com:5432/?Action=connect&DBUser=postgres&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAZZJL3PMC34OKKUOH%2F20261102%2Fus-east-2%2Frds-db%2Faws4_request&X-Amz-Date=20261102T194438Z&X-Amz-Expires=900&X-Amz-Security-Token=IQoJb3JpZ2luX2VjELz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQCz2IlfJUSysjatCDJfGplfMDtyS%2BCocfi7ywQ%2FtvenNwIgPQJysxJfGI%2BfWGgieApvuD3n4cYiHcVAwDybn4KJ4JEq8AMIhf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw2NzI3OTEyMzEyMzciDKJqxMkbSwkrDpcBPCrEA%2BkvarzE7AVc3MH4dj0e3vHu7M%2B960EYRSmCT7ky%2FUPyg6Sl6yP%2FpeOicJ5zePha6WQxWK6uIeKIL9VC50L81dwGM1CkiChF%2B1gDU51gKFkSoq5ZPvGcjcMow5cfaRGfJw48sXaFphgG6hNYMfmAl%2Be5%2Bvj%2BTmaCTIzA0j6JVpMVi3QhifCoz2EkzRm1KdrmQkBvcRJFQvPP2sn%2FPVdrLE%2FW9RkzDFiU4%2BX0ER0SqIbR8pEvY0yeLLZiNEfzICemiE8hkFhUdOQaqBk9e53iTlJbnFq8fM9i8UY70yPhEGcgfrxNzfxoxzjk%2BW57yi1Ev6WafjlWoIwsYwrjiNqwvY09JW%2BxZ4O0HiBJI7GuQHln1e4fWnTjzprC32aEUMMlUpm4EDIl%2FoacW3%2BuACCzqvoqfm8WAAM7XSg%2F8yVl8n03Wh9ySnRt%2BNjctpjmJuU4YCZzR7tsT%2F4xXKT%2BZo41GdiR4nEaXTJ0ljr4EUGhCGnfx%2B3zK5Y4PjBr4kUz%2BAbAhaPi%2FZ78QN6rsUQeVM69WvXp9OS1N3oNEULbvI3a%2BbnXV7QSwLjJg8sJYun%2F4q%2FCIuarmp98Wk9LuJJwubhcEPs3ULNoMJ2ro9cGOroC%2B3D2%2FBatARFpc%2BWLXr2F1JJNXXt4l5aS2L7HUsh7%2F2a27tmV2pf%2BkK0m6Erptffdeu4vkmVyR2QlQRFPqJEtg395Q7y%2FkyZRU6oBvVg%2FjXff5xmLBA2sVjla4qDOf4e397nq2mMMmpUII5lynHFHbtj9Uhg9yd5Jf%2BPkQS4xzOofJjrnOO4JitXBHedf%2B4XwTaB1isdTBEC%2F767s4FTYJYBRI9Tps33tOZnL4atVADoeG4b3SqH0h1%2FLkm%2FfBJPO0OFMeWXTiOMSghQ4VjVUwO2sSC8YYkHnBbckUL2q4sLiHe6xSgXFzLFPjrZZMzcFPXBaVdyE3AjokiNlUw5eLHFDoV1iMoqm5qga0WOWFjmNlqbg10vjeMD6mbEKPkLY18SmLypTpAQBVIy7oZhceV1wwBMUYrPM9OM%3D&X-Amz-Signature=65a1a4dbe8878e56214e452f5d49123dbfcd01ef1b64b8a5ca91a331461701e5&X-Amz-SignedHeaders=host"
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
@@ -368,6 +425,7 @@ def get_user(username: str, password: str):
         else:
             return fastapi.responses.JSONResponse(status_code=401, content={"error": "Invalid credentials"})
     except Exception as e:
+        print(f"error: {e}")
         return fastapi.responses.JSONResponse(status_code=404, content={"error": str(e)})
     finally:
         if conn:
@@ -382,12 +440,21 @@ def get_notes(username: str):
     # if author == "": author = None
     author = None
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -438,12 +505,21 @@ def create_note(note: dict):
     author = note.get("author")
     time = note.get("time")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -480,28 +556,38 @@ def create_note(note: dict):
 @app.post("/user")
 def create_user(user: dict):
     username = user.get("username")
-    email = user.get("email")
+    # email = user.get("email")
     password = user.get("password")
     key = Fernet.generate_key()
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
+        print(f"Connected to the database with auth_token: {conn}")
         cur = conn.cursor()
         cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         if user:
             return fastapi.responses.JSONResponse(status_code=409, content={"message": f"user {username} already exists"})
         encrypted_password = str(encrypt_password(password).decode('utf-8'))
-        cur.execute('INSERT INTO "Users" (username, email, password, n_key) VALUES (%s, %s, %s, %s)', (username, email, encrypted_password, key.decode('utf-8')))
+        cur.execute('INSERT INTO "Users" (username, password, n_key) VALUES (%s, %s, %s)', (username, encrypted_password, key.decode('utf-8')))
         conn.commit()
         return fastapi.responses.JSONResponse(status_code=201, content={"message": "User created successfully"})
     except Exception as e:
-        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e), "username": username, "email": email, "password": password})
+        return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e), "username": username, "password": password})
     finally:
         if conn:
             cur.close()
@@ -513,12 +599,21 @@ def create_alter(alter: dict):
     alter_name = alter.get("alter_name")
     description = alter.get("description")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -549,12 +644,21 @@ def edit_alter(alter: dict):
     new_name = alter.get("new_name")
     description = alter.get("description")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -586,12 +690,21 @@ def set_front(alter: dict):
     alter_name = alter.get("alter_name")
     time = alter.get("time")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -639,12 +752,21 @@ def add_front(alter: dict):
     alter_name = alter.get("alter_name")
     time = alter.get("time")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -680,12 +802,21 @@ def remove_front(alter: dict):
     alter_name = alter.get("alter_name")
     time = alter.get("time")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost",
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost",
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -722,12 +853,21 @@ def get_history(username: str, year: str, month: str, day: str):
         from datetime import date
         print(f"year {year} month {month} day {day}")
         today = date(int(year), int(month), int(day))
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None
@@ -765,12 +905,21 @@ def get_history(username: str, year: str, month: str, day: str):
 def get_user(username: str):
     # username = user.get("username")
     try:
+        # conn = psycopg2.connect(
+        #     host="localhost", #replace with cloud database host when deployed
+        #     database="Ampersand",
+        #     user="postgres",
+        #     password="password",
+        #     port="5432"
+        # )
+        auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='postgres', Region='us-east-2')
         conn = psycopg2.connect(
-            host="localhost", #replace with cloud database host when deployed
-            database="Ampersand",
-            user="postgres",
-            password="password",
-            port="5432"
+            host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
+            port=5432,
+            database='postgres',
+            user='postgres',
+            password=auth_token,
+            sslmode='require'
         )
         cur = conn.cursor()
         user_id = None

@@ -3,15 +3,15 @@
 import { redirect } from "next/navigation";
 
 async function signup(formdata) {
-    if (formdata.username && formdata.email && formdata.password == formdata.confirm) {
+    if (formdata.username && formdata.password == formdata.confirm) {
         console.log('signing up...')
-        console.log("form stuffs ", JSON.stringify({ username: formdata.username, email: formdata.email, password:formdata.password }))
+        console.log("form stuffs ", JSON.stringify({ username: formdata.username, password:formdata.password }))
         const respone = await fetch('http://localhost:8080/user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username: formdata.username, email: formdata.email, password:formdata.password })
+            body: JSON.stringify({ username: formdata.username, password:formdata.password })
         });
         console.log('frontend signup')
         let resJson = await respone.json()
@@ -29,10 +29,10 @@ async function signup(formdata) {
 
 function getFormData() {
     let username = document.getElementById('username').value;
-    let email = document.getElementById('email').value;
+    // let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let confirm = document.getElementById('passconfirm').value;
-    return { username, email, password, confirm };
+    return { username, password, confirm };
 }
 
 export function SignupForm() {
@@ -45,10 +45,6 @@ export function SignupForm() {
                     <div className="w-full">
                         <label htmlFor="username" className="mr-[12%]">username</label>
                         <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[6%]" required/>
-                    </div>
-                    <div className="w-full">
-                        <label htmlFor="email" className="mr-[18%]">email</label>
-                        <input type="text" name="email" id="email" placeholder="email" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[9%]" required/>
                     </div>
                     <div className="w-full">
                         <label htmlFor="password" className="mr-[13%]">password</label>
