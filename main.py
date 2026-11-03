@@ -390,10 +390,6 @@ def can_predict(username: str):
 
 @app.get("/user")
 def get_user(username: str, password: str):
-    # user_id = user.get("user_id")
-    # username = user.get("username")
-    # password = user.get("password")
-    print("get /user hit")
     try:
         # conn = psycopg2.connect(
         #     host="localhost", #replace with cloud database host when deployed

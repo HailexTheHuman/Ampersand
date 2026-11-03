@@ -13,4 +13,4 @@ def response(code, body):
 
 
 def lambda_handler(event, context):
-    return response(200, {"message": "Health check successful"})
+    return response(200, {"message": "NEW Health check successful"})
