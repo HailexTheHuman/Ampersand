@@ -1,0 +1,337 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  DbResourceId:
+    Type: String
+    Default: cluster-TKGPYSS3AG4ZVN65SKJBTWPZD4
+  DbUser:
+    Type: String
+    Default: lambda_user
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Timeout: 150
+    MemorySize: 256
+
+Resources:
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: healthfolded/
+      Handler: health.lambda_handler
+      Events:
+        HealthCheck:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: GET
+  
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: 
+              - rds-db:connect
+              - rds-db:write
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: get_user/
+      Handler: get_user.get_user
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: GET
+  
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: create_user/
+      Handler: create_user.create_user
+      Events:
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: POST
+  
+  CreateAlterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: create_alter/
+      Handler: create_alter.create_alter
+      Events:
+        CreateAlter:
+          Type: Api
+          Properties:
+            Path: /alter
+            Method: POST
+  
+  GetAltersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: get_alters/
+      Handler: get_alters.get_alters
+      Events:
+        GetAlters:
+          Type: Api
+          Properties:
+            Path: /alters
+            Method: GET
+
+  PutAlterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: put_alter/
+      Handler: put_alter.put_alter
+      Events:
+        PutAlter:
+          Type: Api
+          Properties:
+            Path: /alter
+            Method: PUT
+
+  CreateNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: create_note/
+      Handler: create_note.create_note
+      Events:
+        CreateNote:
+          Type: Api
+          Properties:
+            Path: /note
+            Method: POST
+  
+  TrainModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: train_model/
+      Handler: train_model.train_model
+      Events:
+        TrainModel:
+          Type: Api
+          Properties:
+            Path: /train_model
+            Method: POST
+
+  TestModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: test_model/
+      Handler: test_model.test_model
+      Events:
+        TestModel:
+          Type: Api
+          Properties:
+            Path: /test_model
+            Method: GET
+
+  SaveModelToDatabaseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: save_model_to_database/
+      Handler: save_model_to_database.save_model_to_database
+      Events:
+        SaveModelToDatabase:
+          Type: Api
+          Properties:
+            Path: /save_model_to_database
+            Method: POST
+
+  TransferLearningFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: transfer_learning/
+      Handler: transfer_learning.transfer_learning
+      Events:
+        TransferLearning:
+          Type: Api
+          Properties:
+            Path: /transfer_learning
+            Method: POST
+
+  CheckModelTrainReqsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: check_model_train_reqs/
+      Handler: check_model_train_reqs.check_model_train_reqs
+      Events:
+        CheckModelTrainReqs:
+          Type: Api
+          Properties:
+            Path: /check_model_train_reqs
+            Method: POST
+
+  PredictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: predict/
+      Handler: predict.predict
+      Events:
+        Predict:
+          Type: Api
+          Properties:
+            Path: /predict
+            Method: POST
+
+  CanPredictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: can_predict/
+      Handler: can_predict.can_predict
+      Events:
+        CanPredict:
+          Type: Api
+          Properties:
+            Path: /can_predict
+            Method: GET
+
+  GetNotesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: get_notes/
+      Handler: get_notes.get_notes
+      Events:
+        GetNotes:
+          Type: Api
+          Properties:
+            Path: /get_notes
+            Method: GET
+
+  SetFrontFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: set_front/
+      Handler: set_front.set_front
+      Events:
+        SetFront:
+          Type: Api
+          Properties:
+            Path: /set_front
+            Method: POST
+
+  AddToFrontFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: add_to_front/
+      Handler: add_to_front.add_to_front
+      Events:
+        AddToFront:
+          Type: Api
+          Properties:
+            Path: /add_to_front
+            Method: POST
+  
+  RemoveFrontFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: remove_front/
+      Handler: remove_front.remove_front
+      Events:
+        RemoveFront:
+          Type: Api
+          Properties:
+            Path: /remove_front
+            Method: POST
+
+  GetFrontHistoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action: rds-db:connect
+            Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DbResourceId}/${DbUser}
+      CodeUri: get_front_history/
+      Handler: get_front_history.get_history
+      Events:
+        GetFrontHistory:
+          Type: Api
+          Properties:
+            Path: /get_front_history
+            Method: GET

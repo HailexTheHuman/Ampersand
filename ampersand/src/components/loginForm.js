@@ -12,8 +12,8 @@ async function login(formdata, setUsername, setPassword, router) {
         setPassword(formdata.password)
         console.log('logging in...')
         console.log("form stuffs ", JSON.stringify({ username: formdata.username, password: formdata.password }))
-        // const respone = await fetch(`http://localhost:8080/user?username=${formdata.username}&password=${formdata.password}`);
-        const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user?username=${formdata.username}&password=${formdata.password}`);
+        const respone = await fetch(`http://localhost:8080/user?username=${formdata.username}&password=${formdata.password}`);
+        // const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user?username=${formdata.username}&password=${formdata.password}`);
         console.log('frontend login')
         // let resJson = await respone.json()
         let status = await respone.status

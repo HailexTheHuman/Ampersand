@@ -27,4 +27,148 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["CreateUserFunction"]
 
+[function_build_definitions.7a4805f6-2fd0-4091-a03e-0e6be14208af]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\create_alter"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "create_alter.create_alter"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["CreateAlterFunction"]
+
+[function_build_definitions.b78358bf-84cf-4789-a3d6-a7ece6cc4d1c]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\get_alters"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "get_alters.get_alters"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["GetAltersFunction"]
+
+[function_build_definitions.447cf7f4-968e-47d0-a7d5-21c78b27e6f3]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\put_alter"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "put_alter.put_alter"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["PutAlterFunction"]
+
+[function_build_definitions.8aa88ba9-fbaf-420f-b666-dd7e3efa032d]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\create_note"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "create_note.create_note"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["CreateNoteFunction"]
+
+[function_build_definitions.8606fe61-422f-4056-89eb-7b7f52f501d4]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\train_model"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "train_model.train_model"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["TrainModelFunction"]
+
+[function_build_definitions.0df6ef3c-a419-4e46-be3d-3735e7cc2207]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\test_model"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "test_model.test_model"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["TestModelFunction"]
+
+[function_build_definitions.5eef04c9-4442-49fb-bb31-52eb37f37843]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\save_model_to_database"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "save_model_to_database.save_model_to_database"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["SaveModelToDatabaseFunction"]
+
+[function_build_definitions.d3591290-d789-4699-8e40-e697bdc2c320]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\transfer_learning"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "transfer_learning.transfer_learning"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["TransferLearningFunction"]
+
+[function_build_definitions.060d3ca9-7d9f-4e60-835b-89cdda620775]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\check_model_train_reqs"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "check_model_train_reqs.check_model_train_reqs"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["CheckModelTrainReqsFunction"]
+
+[function_build_definitions.1ef9c51a-3bb6-46bd-8782-e741468154ef]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\predict"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "predict.predict"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["PredictFunction"]
+
+[function_build_definitions.6fe4709a-4689-4c87-a8be-e10d9d383034]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\can_predict"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "can_predict.can_predict"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["CanPredictFunction"]
+
+[function_build_definitions.649a8b48-116b-429e-bccb-e7d54f2470fb]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\get_notes"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "get_notes.get_notes"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["GetNotesFunction"]
+
+[function_build_definitions.3951e6f6-26ea-4a11-8eb8-02e39e822242]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\set_front"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "set_front.set_front"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["SetFrontFunction"]
+
+[function_build_definitions.fd2791b4-ce8e-475f-a1b3-d261d14d670a]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\add_to_front"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "add_to_front.add_to_front"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["AddToFrontFunction"]
+
+[function_build_definitions.6b508889-a69b-46a5-b862-d968a0dec585]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\remove_front"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "remove_front.remove_front"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["RemoveFrontFunction"]
+
+[function_build_definitions.331b405d-8640-4140-a7e1-89dd5d3c5618]
+codeuri = "C:\\Neumont\\currentCourses\\capstone\\Ampersand\\get_front_history"
+runtime = "python3.13"
+architecture = "x86_64"
+handler = "get_front_history.get_history"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["GetFrontHistoryFunction"]
+
 [layer_build_definitions]

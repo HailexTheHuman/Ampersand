@@ -14,8 +14,8 @@ import psycopg2
 import awscrt
 import botocore
 import boto3
-import bcrypt
-from cryptography.fernet import Fernet
+# import bcrypt
+# from cryptography.fernet import Fernet
 
 import logging
 logger = logging.getLogger()
@@ -31,28 +31,17 @@ def response(code, body):
         "body": json.dumps(body)
     }
 
-def encrypt_password(password: str):
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed
 
 
 
-def create_user(event, context):
-    event_body = event['body']
-    logger.info(f"Event body: {event_body}")
-    event_body_json = json.loads(event_body)
-    logger.info(f"Parsed event body JSON: {event_body_json}")
-    username = event_body_json.get("username")
-    password = event_body_json.get("password")
-    logger.info(f"Username: {username}")
-    logger.info(f"Password: {password}")
-    key = Fernet.generate_key()
-    logger.info(f"key: {key}")
+
+def remove_front(event, context):
+    body = json.loads(event["body"])
+    username = body.get("username")
+    alter_name = body.get("alter_name")
+    time = body.get("time")
     try:
-        logger.info(f"in the try")
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
-        logger.info(f"Generated auth_token: {auth_token}")
         conn = psycopg2.connect(
             host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
             port=5432,
@@ -61,19 +50,32 @@ def create_user(event, context):
             password=auth_token,
             sslmode='require'
         )
-        logger.info(f"Connected to the database: {conn}")
         cur = conn.cursor()
+        user_id = None
+        alter_id = None
         cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         if user:
-            return response(409, {"error": f"user {username} already exists"})
-        encrypted_password = str(encrypt_password(password).decode('utf-8'))
-        cur.execute('INSERT INTO "Users" (username, password, n_key) VALUES (%s, %s, %s)', (username, encrypted_password, key.decode('utf-8')))
+            user_id = user[0]
+        else:
+            # return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
+            return response(404, {"error": "User not found"})
+        cur.execute('SELECT alter_id FROM "Alters" WHERE name = %s', (alter_name,))
+        alter_result = cur.fetchone()
+        if alter_result:
+            alter_id = alter_result[0]
+        else:
+            # return fastapi.responses.JSONResponse(status_code=404, content={"error": "Alter not found"})
+            return response(404, {"error": "Alter not found"})
+        cur.execute('UPDATE "Alters" SET is_fronting = False WHERE alter_id = %s', (alter_id,))
         conn.commit()
-        return response(201, {"message": "User created successfully"})
+        cur.execute('UPDATE "FrontHistory" SET end_time = %s WHERE alter_id = %s and end_time is null', (time, alter_id,))
+        conn.commit()
+        # return fastapi.responses.JSONResponse(status_code=201, content={"message": "Alter fronting successfully"})
+        return response(201, {"message": "Alter fronting successfully"})
     except Exception as e:
-        logger.error(f"Error occurred: {e}")
-        return response(500, {"error": str(e), "username": username, "password": password})
+        # return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
+        return response(500, {"error": str(e)})
     finally:
         if conn:
             cur.close()
