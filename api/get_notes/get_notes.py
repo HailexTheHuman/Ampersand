@@ -34,7 +34,7 @@ def response(code, body):
 
 
 def get_notes(event, context):
-    query_params = event.get("queryStringParameters")
+    query_params = event['queryStringParameters']
     author = None
     username = query_params.get("username") if query_params else None
     try:

@@ -26,7 +26,7 @@ export async function addNote(prevstate, formData) {
     if (note && author) {
         console.log('adding note...')
         console.log("form stuffs ", JSON.stringify({ username:username, note: note, author: author, time:time }))
-        const respone = await fetch('http://localhost:8080/note', {
+        const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/note', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -2,7 +2,7 @@ import { AddFront, RemoveFront, SetFront } from "./setFront";
 
 export async function ListAlters({ username }) {
     console.log("username: ", username)
-    let results = await fetch(`http://localhost:8080/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
+    let results = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let altersj = await results.json();
     let alters = altersj.alters
     console.log("alters: ", alters)

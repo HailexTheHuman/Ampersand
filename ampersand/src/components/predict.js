@@ -11,7 +11,8 @@ export async function predict(prevState, formData) {
     if (note) {
         console.log('adding note...')
         console.log("form stuffs ", JSON.stringify({ username:username, note: note}))
-        const respone = await fetch('http://localhost:8080/predict', {
+        // const respone = await fetch('http://localhost:8080/predict', {
+        const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

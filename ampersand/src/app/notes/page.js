@@ -9,7 +9,7 @@ export default async function Page() {
     const cookieStore = await cookies()
     const username = cookieStore.get("username")?.value
 
-    const respone = await fetch(`http://localhost:8080/canPredict?username=${username}`);
+    const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/canPredict?username=${username}`);
     let jsonRes = await respone.json()
     const canPredict = jsonRes.can_predict
 

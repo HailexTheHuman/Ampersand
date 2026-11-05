@@ -7,3 +7,4 @@ boto3==1.43.123
 cryptography==50.0.2
 # numpy==2.5.3
 # scikit-learn==1.9.1
+requests==2.34.2

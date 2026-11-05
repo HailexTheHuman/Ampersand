@@ -1,17 +1,7 @@
 import json
-# import os
-# from sklearn.feature_extraction.text import HashingVectorizer
-# from sklearn.linear_model import SGDClassifier
-# from sklearn import metrics
-# vectorizer = HashingVectorizer()
-# from pathlib import Path
-# classifier = SGDClassifier(warm_start=False)
-# import joblib
-# import numpy as np
-# import psycopg2
-# import awscrt
-# import botocore
-# import boto3
+import requests
+import joblib
+import s3fs
 
 import logging
 logger = logging.getLogger()
@@ -60,18 +50,45 @@ def transfer_learning(event, context):
     model = None
     try:
         # model = train_model(author_notes_pairs=train_author_notes, transfer_learning=True, model_path='./models/base_classifier')
-        raise NotImplementedError("Training model fetch not implement")
+        train_response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/train_model", json={
+            "author_notes_pairs": list(train_author_notes),
+            "transfer_learning": True,
+            "model_path": "./models/base_classifier"
+        })
+        if train_response.status_code != 200:
+            raise Exception("Training model fetch not implemented")
+        # raise NotImplementedError("Training model fetch not implement")
     except Exception as e:
         print(f"error trying to train: {e}")
     test_author_notes = zip(test_authors, test_notes)
     try:
         # f1, score = test_model(model, author_note_pairs=test_author_notes)
-        raise NotImplementedError("Testing model fetch not implemented")
+        test_response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/test_model", json={
+            "author_note_pairs": list(test_author_notes),
+            "model_path": "./models/base_classifier"
+        })
+        if test_response.status_code != 200:
+            raise Exception("Testing model fetch not implemented")
+        # raise NotImplementedError("Testing model fetch not implemented")
     except Exception as e:
         print(f"error trying to test: {e}")
-    # if f1 > 0.6 and score > 0.6:
-    #     if f1 > old_f1 and score >old_accuracy:
-    #         path = f'./models/{username}'
-    #         save_model(model, model_path=path)
-    #         # save_model_to_database(user_id, path, notes_amount)
-    #         raise NotImplementedError("Saving model to database fetch not implemented")
+    f1 = test_response.json().get("f1")
+    score = test_response.json().get("score")
+    if f1 > 0.6 and score > 0.6:
+        if f1 > old_f1 and score >old_accuracy:
+            path = f'./models/{username}'
+            # save_model(model, model_path=path)
+            fs = s3fs.S3FileSystem()
+            fs.makedirs(path, exist_ok=True)
+            joblib.dump(model, f"{path}/model.pkl")
+            # fs.put(f"{path}/model.pkl", f"{path}/model.pkl")
+            # raise NotImplementedError("Saving model to database fetch not implemented")
+            # save_model_to_database(user_id, path, notes_amount)
+            save_response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/save_model_to_database", json={
+                "user_id": user_id,
+                "path": path,
+                "notes_amount": notes_amount
+            })
+            if save_response.status_code != 200:
+                raise Exception("Saving model to database fetch not implemented")
+            # raise NotImplementedError("Saving model to database fetch not implemented")

@@ -32,7 +32,7 @@ def response(code, body):
     }
 
 def put_alter(event, context):
-    body = event.get("body")
+    body = event['body']
     alter = json.loads(body)
     username = alter.get("username")
     old_name = alter.get("old_name")

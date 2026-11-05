@@ -1,21 +1,10 @@
 import json
-# import os
-# from sklearn.feature_extraction.text import HashingVectorizer
-# from sklearn.linear_model import SGDClassifier
-# from sklearn import metrics
-# vectorizer = HashingVectorizer()
-# from pathlib import Path
-# classifier = SGDClassifier(warm_start=False)
-# import joblib
-# import numpy as np
-# import fastapi
-# import uvicorn
 import psycopg2
 import awscrt
 import botocore
 import boto3
-# import bcrypt
 from cryptography.fernet import Fernet
+import requests
 
 import logging
 logger = logging.getLogger()
@@ -43,11 +32,12 @@ def load_model(model_path):
     pass
 
 
-def create_note(note: dict):
-    username = note.get("username")
-    note_text = note.get("note")
-    author = note.get("author")
-    time = note.get("time")
+def create_note(event, context):
+    body = json.loads(event['body'])
+    username = body.get("username")
+    note_text = body.get("note")
+    author = body.get("author")
+    time = body.get("time")
     try:
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
         conn = psycopg2.connect(
@@ -82,7 +72,15 @@ def create_note(note: dict):
         old_f1 = user[3]
         old_accuracy = user[4]
         # check_model_train_requirements(user_id, username, last_train_notes_amount, old_f1, old_accuracy)
-        raise Exception("Check model train requirements fetch not implemented")
+        response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/check_model_train_reqs", json={
+            "user_id": user_id,
+            "username": username,
+            "last_train_notes_amount": last_train_notes_amount,
+            "old_f1": old_f1,
+            "old_accuracy": old_accuracy
+        })
+        if response.status_code != 200:
+            raise Exception("Check model train requirements fetch not implemented")
         # return response(201, {"message": "Note created successfully"})
     except Exception as e:
         return response(500, {"error": str(e)})

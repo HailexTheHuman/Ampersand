@@ -6,8 +6,8 @@ async function signup(formdata) {
     if (formdata.username && formdata.password == formdata.confirm) {
         console.log('signing up...')
         console.log("form stuffs ", JSON.stringify({ username: formdata.username, password:formdata.password }))
-        const respone = await fetch('http://localhost:8080/user', {
-        // const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user', {
+        // const respone = await fetch('http://localhost:8080/user', {
+        const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -18,13 +18,13 @@ export async function ListFronts({ username }) {
     // setCookie("day", today.toUTCString(), {maxAge: 3600})
 
     console.log("username: ", username)
-    let resultsF = await fetch(`http://localhost:8080/fronthistory?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
+    let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/fronthistory?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
     let fronts = frontsj.fronts
     console.log("fronts: ", frontsj)
 
 
-    let resultsA = await fetch(`http://localhost:8080/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
+    let resultsA = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let altersj = await resultsA.json();
     let alters = altersj.alters
     console.log("alters: ", alters)

@@ -1,18 +1,9 @@
 import json
-# import os
-# from sklearn.feature_extraction.text import HashingVectorizer
-# from sklearn.linear_model import SGDClassifier
-# from sklearn import metrics
-# vectorizer = HashingVectorizer()
-# from pathlib import Path
-# classifier = SGDClassifier(warm_start=False)
-# import joblib
-# import numpy as np
 import psycopg2
 import awscrt
 import botocore
 import boto3
-# from cryptography.fernet import Fernet
+import requests
 
 import logging
 logger = logging.getLogger()
@@ -30,7 +21,9 @@ def response(code, body):
 
 
 
-def can_predict(username: str):
+def can_predict(event, context):
+    query_params = event['queryStringParameters']
+    username = query_params.get('username')
     try:
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
         conn = psycopg2.connect(
@@ -44,8 +37,17 @@ def can_predict(username: str):
         cur = conn.cursor()
         cur.execute('SELECT user_id, last_train_notes_amount, f1, accuracy FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
+        # https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/check_model_train_reqs
         # check_model_train_reqs(user[0], username, user[1], user[2], user[3])
-        raise Exception("Debugging: check_model_train_reqs fetch not implemented")
+        response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/check_model_train_reqs", json={
+            "user_id": user[0],
+            "username": username,
+            "last_train_notes_amount": user[1],
+            "f1": user[2],
+            "accuracy": user[3]
+        })
+        if response.status_code != 200:
+            raise Exception("Debugging: check_model_train_reqs fetch not implemented")
         cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
         model_path = user[0]

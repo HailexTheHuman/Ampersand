@@ -4,6 +4,8 @@ from sklearn.linear_model import SGDClassifier
 import psycopg2
 import awscrt
 import botocore
+import joblib
+from s3fs import S3FileSystem as fs
 import boto3
 
 import logging
@@ -19,18 +21,6 @@ def response(code, body):
         },
         "body": json.dumps(body)
     }
-
-
-def save_model(classifier, model_path):
-    # TODO: update the model saving logic for hosted deployment
-    # joblib.dump(classifier, Path(model_path+'.pkl'))
-    pass
-
-def load_model(model_path):
-    # TODO: update the model loading logic for hosted deployment
-    # classifier = joblib.load(Path(model_path+'.pkl'))
-    # return classifier
-    pass
 
 
 def predict(event, context):
@@ -51,7 +41,6 @@ def predict(event, context):
         cur = conn.cursor()
         cur.execute('SELECT model_path FROM "Users" WHERE username = %s', (username,))
         user = cur.fetchone()
-        print(f"user, {user}")
         model_path = user[0]
     except Exception as e:
         return response(500, {"error": str(e)})
@@ -60,17 +49,13 @@ def predict(event, context):
             cur.close()
             conn.close()
     try:
-        model = load_model(model_path=model_path)
-        print(f"model, {model}")
-        print(f"text, {text}")
+        model = joblib.load(fs().open(f"{model_path}/model.pkl", "rb"))
         vectorizer = HashingVectorizer()
         document_term_matrix = vectorizer.fit_transform([text])
         most_likely_prediction = model.predict(document_term_matrix)
-        print(f"most likely, {most_likely_prediction}")
         probabilities = model.predict_proba(document_term_matrix)
-        print(f"probabilities, {probabilities}")
         predictions = [{'name':str(model.classes_[i]), 'likelyhood':float(probabilities[0][i])} for i in range(len(model.classes_))]
-        print(f"prediction, {predictions}")
         return response(200, {"predictions": predictions, "most_likely": most_likely_prediction[0]})
+        # return response(200, {"predictions": [], "most_likely": None})
     except Exception as e:
         return response(500, {"error": str(e)})

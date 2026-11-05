@@ -7,7 +7,7 @@ async function addAlter(formdata, username) {
     if (formdata.name && formdata.description) {
         console.log('creating alter...')
         console.log("form stuff for creating alter: ", JSON.stringify({ username:username,  alter_name:formdata.name, description: formdata.description }))
-        const respone = await fetch('http://localhost:8080/alter', {
+        const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alter', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ async function editAlter(formdata, username) {
     if (formdata.oldName && (formdata.description || formdata.newName)) {
         console.log('editing alter...')
         console.log("form stuff for editing alter: ", JSON.stringify({ username:username,  oldName:formdata.oldName, newName:formdata.newName, description: formdata.description }))
-        const respone = await fetch('http://localhost:8080/alter', {
+        const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alter', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

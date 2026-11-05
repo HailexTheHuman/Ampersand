@@ -13,6 +13,7 @@ import awscrt
 import botocore
 import boto3
 from cryptography.fernet import Fernet
+import requests
 
 import logging
 logger = logging.getLogger()
@@ -30,7 +31,7 @@ def response(code, body):
 
 def check_model_train_reqs(event, context):
     # user_id, username, last_train_notes_amount, old_f1, old_accuracy
-    query_params = event.get("queryStringParameters")
+    query_params = event['queryStringParameters']
     user_id = query_params.get("user_id")
     username = query_params.get("username")
     last_train_notes_amount = int(query_params.get("last_train_notes_amount"))
@@ -67,7 +68,16 @@ def check_model_train_reqs(event, context):
                 decrypted_note = f.decrypt(notes_table[i][0].encode('utf-8')).decode('utf-8')
                 notes.append(decrypted_note)
             # transfer_learning(zip(authors, notes), user_id, username, len(notes), old_f1, old_accuracy)
-            raise Exception("Transfer learning fetch not implemented")
+            response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/transfer_learning", json={
+                "author_notes_pairs": list(zip(authors, notes)),
+                "user_id": user_id,
+                "username": username,
+                "notes_amount": len(notes),
+                "old_f1": old_f1,
+                "old_accuracy": old_accuracy
+            })
+            if response.status_code != 200:
+                raise Exception("Debugging: transfer_learning fetch not implemented")
     except Exception as e:
         print(f"error checking if we should train {e}")
     finally:

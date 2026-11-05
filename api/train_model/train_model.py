@@ -35,10 +35,10 @@ def load_model(model_path):
     pass
 
 def train_model(event, context):
-    query_params = event.get('queryStringParameters', {})
+    query_params = json.loads(event['queryStringParameters'])
     transfer_learning = query_params.get('transfer_learning', False)
     model_path = query_params.get('model_path')
-    author_notes_pairs = query_params.get('author_notes_pairs')
+    author_notes_pairs = json.loads(query_params.get('author_notes_pairs'))
     if transfer_learning and model_path:
         old_classifier = load_model(model_path)
     else:
