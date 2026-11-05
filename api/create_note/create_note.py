@@ -20,16 +20,6 @@ def response(code, body):
         "body": json.dumps(body)
     }
 
-def save_model(classifier, model_path):
-    # TODO: update the model saving logic for hosted deployment
-    # joblib.dump(classifier, Path(model_path+'.pkl'))
-    pass
-
-def load_model(model_path):
-    # TODO: update the model loading logic for hosted deployment
-    # classifier = joblib.load(Path(model_path+'.pkl'))
-    # return classifier
-    pass
 
 
 def create_note(event, context):
@@ -72,14 +62,14 @@ def create_note(event, context):
         old_f1 = user[3]
         old_accuracy = user[4]
         # check_model_train_requirements(user_id, username, last_train_notes_amount, old_f1, old_accuracy)
-        response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/check_model_train_reqs", json={
+        response_checked = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/check_model_train_reqs", json={
             "user_id": user_id,
             "username": username,
             "last_train_notes_amount": last_train_notes_amount,
             "old_f1": old_f1,
             "old_accuracy": old_accuracy
         })
-        if response.status_code != 200:
+        if response_checked.status_code != 200:
             raise Exception("Check model train requirements fetch not implemented")
         # return response(201, {"message": "Note created successfully"})
     except Exception as e:

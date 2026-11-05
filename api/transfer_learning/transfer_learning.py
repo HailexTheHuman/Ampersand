@@ -53,7 +53,7 @@ def transfer_learning(event, context):
         train_response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/train_model", json={
             "author_notes_pairs": list(train_author_notes),
             "transfer_learning": True,
-            "model_path": "./models/base_classifier"
+            "model_path": "alter-classifiers-672791231237-us-east-1-an/base_classifier"
         })
         if train_response.status_code != 200:
             raise Exception("Training model fetch not implemented")
@@ -65,7 +65,8 @@ def transfer_learning(event, context):
         # f1, score = test_model(model, author_note_pairs=test_author_notes)
         test_response = requests.post("https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/test_model", json={
             "author_note_pairs": list(test_author_notes),
-            "model_path": "./models/base_classifier"
+            # "model_path": "alter-classifiers-672791231237-us-east-1-an/models/base_classifier"
+            "model": train_response.json().get("model")
         })
         if test_response.status_code != 200:
             raise Exception("Testing model fetch not implemented")
@@ -74,13 +75,14 @@ def transfer_learning(event, context):
         print(f"error trying to test: {e}")
     f1 = test_response.json().get("f1")
     score = test_response.json().get("score")
-    if f1 > 0.6 and score > 0.6:
+    if f1 > 0.65 and score > 0.65:
         if f1 > old_f1 and score >old_accuracy:
-            path = f'./models/{username}'
+            path = f'alter-classifiers-672791231237-us-east-1-an/base_classifier/{username}'
             # save_model(model, model_path=path)
             fs = s3fs.S3FileSystem()
             fs.makedirs(path, exist_ok=True)
-            joblib.dump(model, f"{path}/model.pkl")
+            with fs.open(f"{path}/model.pkl", "wb") as f:
+                joblib.dump(model, f)
             # fs.put(f"{path}/model.pkl", f"{path}/model.pkl")
             # raise NotImplementedError("Saving model to database fetch not implemented")
             # save_model_to_database(user_id, path, notes_amount)

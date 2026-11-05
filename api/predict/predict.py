@@ -49,7 +49,9 @@ def predict(event, context):
             cur.close()
             conn.close()
     try:
-        model = joblib.load(fs().open(f"{model_path}/model.pkl", "rb"))
+        model = None
+        with fs().open(f"{model_path}/model.pkl", "rb") as f:
+            model = joblib.load(f)
         vectorizer = HashingVectorizer()
         document_term_matrix = vectorizer.fit_transform([text])
         most_likely_prediction = model.predict(document_term_matrix)

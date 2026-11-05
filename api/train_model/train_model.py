@@ -8,6 +8,7 @@ from sklearn import metrics
 # classifier = SGDClassifier(warm_start=False)
 import joblib
 import numpy as np
+import s3fs
 
 import logging
 logger = logging.getLogger()
@@ -23,16 +24,6 @@ def response(code, body):
         "body": json.dumps(body)
     }
 
-def save_model(classifier, model_path):
-    # TODO: update the model saving logic for hosted deployment
-    # joblib.dump(classifier, Path(model_path+'.pkl'))
-    pass
-
-def load_model(model_path):
-    # TODO: update the model loading logic for hosted deployment
-    # classifier = joblib.load(Path(model_path+'.pkl'))
-    # return classifier
-    pass
 
 def train_model(event, context):
     query_params = json.loads(event['queryStringParameters'])
@@ -40,7 +31,10 @@ def train_model(event, context):
     model_path = query_params.get('model_path')
     author_notes_pairs = json.loads(query_params.get('author_notes_pairs'))
     if transfer_learning and model_path:
-        old_classifier = load_model(model_path)
+        # old_classifier = load_model(model_path)
+        old_classifier = None
+        with s3fs.S3FileSystem().open(f"{model_path}/model.pkl", "rb") as f:
+            old_classifier = joblib.load(f)
     else:
         classifier = SGDClassifier(warm_start=False, loss='modified_huber')
     vectorizer = HashingVectorizer()
@@ -91,4 +85,4 @@ def train_model(event, context):
     print(f"F1 Score: {f1}")
     score = classifier.score(documents_term_matrixes, authors_per_document)
     print(f"Accuracy: {score}")
-    return classifier
+    return {"model": classifier}

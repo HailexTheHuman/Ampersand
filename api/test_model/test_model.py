@@ -23,22 +23,12 @@ def response(code, body):
         "body": json.dumps(body)
     }
 
-def save_model(classifier, model_path):
-    # TODO: update the model saving logic for hosted deployment
-    # joblib.dump(classifier, Path(model_path+'.pkl'))
-    pass
-
-def load_model(model_path):
-    # TODO: update the model loading logic for hosted deployment
-    # classifier = joblib.load(Path(model_path+'.pkl'))
-    # return classifier
-    pass
 
 def test_model(event, context):
     # classifier, testing_path=None, author_note_pairs=None
     query_params = event['queryStringParameters']
     author_note_pairs = json.loads(query_params.get('author_note_pairs'))
-    classifier = load_model(query_params.get('model_path'))
+    classifier = query_params.get('model')
     vectorizer = HashingVectorizer()
     test_corpus = []
     test_authors = []
