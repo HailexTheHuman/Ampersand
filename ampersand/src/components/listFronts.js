@@ -8,26 +8,17 @@ export async function ListFronts({ username }) {
     await connection()
     
     const cookieStore = await cookies()
-    // let today;
-    // let now = new Date()
-    // today = new Date(cookieStore.get("day").value)
-    // console.log("today: ", today)
-    // if (!today) today = now
     let dayCookie = cookieStore.get("day")?.value
     let today = dayCookie ? new Date(dayCookie) : new Date()
-    // setCookie("day", today.toUTCString(), {maxAge: 3600})
 
-    console.log("username: ", username)
     let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/fronthistory?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
     let fronts = frontsj.fronts
-    console.log("fronts: ", frontsj)
 
 
     let resultsA = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let altersj = await resultsA.json();
     let alters = altersj.alters
-    console.log("alters: ", alters)
 
     
     return (
@@ -40,9 +31,6 @@ async function FrontDivs({ alters, fronts, today }) {
     let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
     let dayEnd = dayStart + DAY_MS
-    console.log("daystart, ", dayStart)
-    console.log("daystart adjusted, ", dayStart)
-    console.log("dayms, ", DAY_MS)
     let year = today.getFullYear()
     let month = today.getMonth()
     let date = today.getDate()
@@ -71,12 +59,10 @@ async function FrontDivs({ alters, fronts, today }) {
             </div>
             {alters && alters.map((alter, index) => {
                 alterI++
-                console.log("current alter: ", alter)
                 return (
                     <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[1%] ">
                         {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
-                            console.log("current front: ", front)
 
                             let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
                             let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)

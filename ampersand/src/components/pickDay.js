@@ -15,7 +15,6 @@ export function setDay(router) {
         String(next.getDate()).padStart(2, "0"),
     ].join("-")
 
-    console.log("fixed date: ", fixedDate)
 
     setCookie("day", fixedDate, {maxAge: 3600})
     router.refresh()

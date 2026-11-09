@@ -9,7 +9,6 @@ export async function SetFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
-    console.log("set front info: ", JSON.stringify({ username:username, alter_name:alter_name, time:time }))
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/front', {
         method: 'POST',
@@ -20,7 +19,6 @@ export async function SetFront(formData) {
     });
     let responeJ = await respone.json()
     let status = respone.status
-    console.log("response: ", responeJ)
     if (status == 201) {
         revalidatePath('/profile')
     }
@@ -32,7 +30,6 @@ export async function AddFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
-    console.log("add front info: ", JSON.stringify({ username:username, alter_name:alter_name, time:time }))
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/add_to_front', {
         method: 'POST',
@@ -43,7 +40,6 @@ export async function AddFront(formData) {
     });
     let responeJ = await respone.json()
     let status = respone.status
-    console.log("response: ", responeJ)
     if (status == 201) {
         revalidatePath('/profile')
     }
@@ -53,7 +49,6 @@ export async function RemoveFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
-    console.log("remove front info: ", JSON.stringify({ username:username, alter_name:alter_name, time:time }))
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/remove_front', {
         method: 'POST',
@@ -64,7 +59,6 @@ export async function RemoveFront(formData) {
     });
     let responeJ = await respone.json()
     let status = respone.status
-    console.log("response: ", responeJ)
     if (status == 201) {
         revalidatePath('/profile')
     }

@@ -1,11 +1,9 @@
 import { AddFront, RemoveFront, SetFront } from "./setFront";
 
 export async function ListAlters({ username }) {
-    console.log("username: ", username)
     let results = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let altersj = await results.json();
     let alters = altersj.alters
-    console.log("alters: ", alters)
     return (
         // <div>
         <div className="flex flex-col items-center text-center justify-between w-[34%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">

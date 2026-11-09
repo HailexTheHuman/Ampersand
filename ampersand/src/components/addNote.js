@@ -24,8 +24,6 @@ export async function addNote(prevstate, formData) {
     if (!username || !note || !author) return
 
     if (note && author) {
-        console.log('adding note...')
-        console.log("form stuffs ", JSON.stringify({ username:username, note: note, author: author, time:time }))
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/note', {
             method: 'POST',
             headers: {
@@ -33,11 +31,8 @@ export async function addNote(prevstate, formData) {
             },
             body: JSON.stringify({ username:username, note: note, author: author, time:time })
         });
-        console.log('frontend add note')
         let resJson = await respone.json()
         let status = await respone.status
-        console.log("resJson", resJson)
-        // console.log("status", status)
         if (status == 201) {
             revalidatePath('/notes')
         }

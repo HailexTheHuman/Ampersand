@@ -9,8 +9,6 @@ export async function predict(prevState, formData) {
     if (!username || !note) return
 
     if (note) {
-        console.log('adding note...')
-        console.log("form stuffs ", JSON.stringify({ username:username, note: note}))
         // const respone = await fetch('http://localhost:8080/predict', {
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/predict', {
             method: 'POST',
@@ -19,9 +17,7 @@ export async function predict(prevState, formData) {
             },
             body: JSON.stringify({ username:username, note: note})
         });
-        console.log('frontend add note')
         let resJson = await respone.json()
-        console.log("resJson", resJson)
         let total = 0.0
         resJson.predictions.forEach(prediction => {
             total += prediction.likelyhood

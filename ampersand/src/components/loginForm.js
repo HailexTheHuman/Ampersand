@@ -10,15 +10,10 @@ async function login(formdata, setUsername, setPassword, router) {
     if (formdata.username && formdata.password) {
         setUsername(formdata.username)
         setPassword(formdata.password)
-        console.log('logging in...')
-        console.log("form stuffs ", JSON.stringify({ username: formdata.username, password: formdata.password }))
         // const respone = await fetch(`http://localhost:8080/user?username=${formdata.username}&password=${formdata.password}`);
         const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user?username=${formdata.username}&password=${formdata.password}`);
-        console.log('frontend login')
         // let resJson = await respone.json()
         let status = await respone.status
-        // console.log("resJson", resJson)
-        console.log("status", status)
         if (status == 200) {
             setCookie("username", formdata.username, {maxAge: 14400})
             router.refresh()

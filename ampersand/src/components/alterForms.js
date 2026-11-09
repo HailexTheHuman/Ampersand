@@ -5,8 +5,6 @@ import { redirect } from "next/navigation";
 
 async function addAlter(formdata, username) {
     if (formdata.name && formdata.description) {
-        console.log('creating alter...')
-        console.log("form stuff for creating alter: ", JSON.stringify({ username:username,  alter_name:formdata.name, description: formdata.description }))
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alter', {
             method: 'POST',
             headers: {
@@ -14,11 +12,8 @@ async function addAlter(formdata, username) {
             },
             body: JSON.stringify({ username:username,  alter_name:formdata.name, description: formdata.description })
         });
-        console.log('frontend create alter')
         let resJson = await respone.json()
         let status = await respone.status
-        console.log("resJson", resJson)
-        console.log("status", status)
         if (resJson.message == "Alter created successfully") {
             redirect('/profile')
         }
@@ -55,8 +50,6 @@ export function AddAlterForm({ username }) {
 
 async function editAlter(formdata, username) {
     if (formdata.oldName && (formdata.description || formdata.newName)) {
-        console.log('editing alter...')
-        console.log("form stuff for editing alter: ", JSON.stringify({ username:username,  oldName:formdata.oldName, newName:formdata.newName, description: formdata.description }))
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alter', {
             method: 'PUT',
             headers: {
@@ -64,11 +57,8 @@ async function editAlter(formdata, username) {
             },
             body: JSON.stringify({ username:username,  old_name:formdata.oldName, new_name:formdata.newName, description: formdata.description })
         });
-        console.log('frontend edit alter')
         let resJson = await respone.json()
         let status = await respone.status
-        console.log("resJson", resJson)
-        console.log("status", status)
         if (resJson.message == "Alter edited successfully") {
             redirect('/profile')
         }
