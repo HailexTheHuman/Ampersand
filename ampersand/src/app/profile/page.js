@@ -19,11 +19,11 @@ export default async function Page() {
     console.log("response can predict: ", jsonRes)
     
     return (
-        <main className="flex w-full w-[100%] max-h-[79%] h-[100%] sm:flex-col flex-row items-center dark:bg-black">
+        <main className="flex w-full w-[100%] sm:max-h-[79%] h-[100%] sm:flex-col flex-row items-center dark:bg-black">
             <h3 className="text-2xl text-center max-h-[10%]">Hello {username}</h3>
             <div className="flex flex-row max-h-[90%] h-[90%] max-w-[100%] w-[100%]">
                 <ListAlters username={username}/>
-                <div className="flex flex-col w-[100%] h-[100%]">
+                <div className="flex sm:flex-col flex-row w-[100%] h-[100%]">
                     {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                     <div className="flex flex-row w-[100%] h-[90%] ">
                         <AddAlterForm username={username}/>
