@@ -38,10 +38,10 @@ export default async function RootLayout({ children }) {
             <h2 className="text-xs mb-[2%] text-center text-red-600 sm:text-2xl">Disclaimer: this is being made by a college student for their capstone. This does not replace profressional help and machine learning is not perfect, use this as a tool not a solution.</h2>
             <h1 className="text-5xl text-center">Ampersand</h1>
             {/* <nav className="flex items-center justify-between text-center max-w-7/10 mx-[25%]"> */}
-            <nav className="sm:ml-[0%] ml-[15%]">
+            <nav className="">
               {
                 storeBought && 
-                <div className="flex items-center justify-between text-center max-w-7/10 ml-[25%] sm:ml-[85%]">
+                <div className="flex items-center justify-between text-center max-w-7/10 ml-[15%] sm:ml-[85%]">
                   <a href="/profile">profile</a>
                   <a href="/notes">notes</a>
                   <a href="/fronthistory">front history</a>
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }) {
               }
               {
                 !storeBought && 
-                <div className="flex items-center justify-between text-center max-w-7/10 ml-[25%] sm:ml-[85%]">
+                <div className="flex items-center justify-between text-center max-w-7/10 ml-[15%] sm:ml-[85%]">
                   <a href="/login">login</a>
                   <a href="/signup">signup</a>
                 </div>
