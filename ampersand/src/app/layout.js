@@ -29,16 +29,19 @@ export default async function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
       <body className="min-h-[20%] flex flex-col max-h-[100%] h-[97%]">
         <header className="py-5 items-center">
           <div className="container mx-auto  items-center">
-            <h2 className="text-2xl mb-[2%] text-center text-red-600">Disclaimer: this is being made by a college student for their capstone. This does not replace profressional help and machine learning is not perfect, use this as a tool not a solution.</h2>
+            <h2 className="text-xs mb-[2%] text-center text-red-600 sm:text-2xl">Disclaimer: this is being made by a college student for their capstone. This does not replace profressional help and machine learning is not perfect, use this as a tool not a solution.</h2>
             <h1 className="text-5xl text-center">Ampersand</h1>
             {/* <nav className="flex items-center justify-between text-center max-w-7/10 mx-[25%]"> */}
-            <nav className="">
+            <nav className="sm:ml-[0%] ml-[15%]">
               {
                 storeBought && 
-                <div className="flex items-center justify-between text-center max-w-7/10 ml-[85%]">
+                <div className="flex items-center justify-between text-center max-w-7/10 ml-[25%] sm:ml-[85%]">
                   <a href="/profile">profile</a>
                   <a href="/notes">notes</a>
                   <a href="/fronthistory">front history</a>
@@ -47,7 +50,7 @@ export default async function RootLayout({ children }) {
               }
               {
                 !storeBought && 
-                <div className="flex items-center justify-between text-center max-w-7/10 ml-[85%]">
+                <div className="flex items-center justify-between text-center max-w-7/10 ml-[25%] sm:ml-[85%]">
                   <a href="/login">login</a>
                   <a href="/signup">signup</a>
                 </div>
