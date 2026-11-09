@@ -44,16 +44,16 @@ export function SignupForm() {
                 <h3 id="message"></h3>
                 <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())}>
                     <div className="w-full">
-                        <label htmlFor="username" className="mr-[12%]">username</label>
-                        <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[6%]" required/>
+                        <label htmlFor="username" className="sm:mr-[12%]">username</label>
+                        <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
                     </div>
                     <div className="w-full">
-                        <label htmlFor="password" className="mr-[13%]">password</label>
-                        <input type="password" name="password" id="password" placeholder="password" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[6%]" required/>
+                        <label htmlFor="password" className="sm:mr-[13%]">password</label>
+                        <input type="password" name="password" id="password" placeholder="password" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
                     </div>
                     <div className="w-full">
-                        <label htmlFor="passconfirm" className="mr-[2%]">confirm password</label>
-                        <input type="password" name="passconfirm" id="passconfirm" placeholder="passconfirm" className="border-2 outline-purple-700 border-purple-700 rounded-md ml-[2%]" required/>
+                        <label htmlFor="passconfirm" className="sm:mr-[2%]">confirm password</label>
+                        <input type="password" name="passconfirm" id="passconfirm" placeholder="passconfirm" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]" required/>
                     </div>
                     <div className="w-full">
                         <input type="submit" name="submit" id="submit" value={"signup"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
