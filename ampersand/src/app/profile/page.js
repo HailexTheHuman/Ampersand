@@ -26,7 +26,7 @@ export default async function Page() {
                         <EditAlterForm username={username}/>
                     </div>
                 </div>
-                <ListAlters username={username} className="order-first order-last"/>
+                <ListAlters username={username} className="order-first"/>
             </div>
         </main>
     )
