@@ -26,7 +26,7 @@ export default async function Page() {
                         <EditAlterForm username={username}/>
                     </div>
                 </div>
-                <ListAlters username={username} className="sm:fixed sm:order-first sm:-translate-x-[50%]"/>
+                <ListAlters username={username} className="sm:relative sm:order-first sm:-translate-x-[50%]"/>
             </div>
         </main>
     )
