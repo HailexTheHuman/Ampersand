@@ -16,17 +16,17 @@ export default async function Page() {
     if (!username) redirect("/login")
     
     return (
-        <main className="flex w-full w-[100%] sm:max-h-[79%] h-[100%] sm:flex-col flex-row items-center dark:bg-black">
+        <main className="flex w-full w-[100%] sm:max-h-[79%] h-[100%] sm:flex-col flex-row items-center dark:bg-black  overflow-y-auto overscroll-y-auto">
             <h3 className="text-2xl text-center max-h-[10%]">Hello {username}</h3>
             <div className="flex flex-row sm:max-h-[90%] h-[90%] max-w-[100%] w-[100%]">
-                <div className="flex sm:flex-row flex-col w-[100%] h-[100%] overflow-y-auto overscroll-y-auto">
+                <div className="flex sm:flex-row flex-col w-[100%] h-[100%]">
                     {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                     <div className="flex sm:flex-row flex-col w-[100%] h-[90%] ">
                         <AddAlterForm username={username}/>
                         <EditAlterForm username={username}/>
                     </div>
-                    <ListAlters username={username} className=""/>
                 </div>
+                <ListAlters username={username} className=""/>
             </div>
         </main>
     )
