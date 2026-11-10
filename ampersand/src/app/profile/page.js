@@ -16,12 +16,12 @@ export default async function Page() {
     if (!username) redirect("/login")
     
     return (
-        <main className="sm:flex sm:w-full sm:w-[100%] sm:max-h-[79%] sm:h-[100%] sm:flex-col sm:items-center dark:bg-black sm:overflow-y-auto overflow-y-scroll overscroll-y-auto">
+        <main className="flex w-full w-[100%] sm:max-h-[79%] h-[100%] flex-col items-center dark:bg-black sm:overflow-y-auto overflow-y-scroll overscroll-y-auto">
             <h3 className="text-2xl text-center max-h-[10%]">Hello {username}</h3>
-            <div className="sm:flex sm:flex-row sm:max-h-[90%] h-[90%] max-w-[100%] w-[100%]">
-                <div className="sm:flex sm:flex-row w-[100%] h-[100%]">
+            <div className="flex sm:flex-row flex-col sm:max-h-[90%] h-[90%] max-w-[100%] w-[100%]">
+                <div className="flex sm:flex-row flex-col w-[100%] h-[100%]">
                     {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
-                    <div className="sm:flex sm:flex-row w-[100%] sm:h-[90%] h-[100%] ">
+                    <div className="flex sm:flex-row flex-col w-[100%] sm:h-[90%] h-[100%] ">
                         <AddAlterForm username={username}/>
                         <EditAlterForm username={username}/>
                     </div>

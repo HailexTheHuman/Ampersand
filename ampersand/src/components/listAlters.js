@@ -5,8 +5,7 @@ export async function ListAlters({ username }) {
     let altersj = await results.json();
     let alters = altersj.alters
     return (
-        // <div>
-        <div className="flex flex-col items-center text-center justify-between w-[34%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
+        <div className="flex flex-col items-center text-center justify-between sm:w-[34%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto sm:max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
             {await alters && alters.map((alter) => (
                 <div key={alter.alter_id} className="flex flex-col items-center text-center justify-between w-[100%] min-h-[25%] max-h-[100%] border-1 outline-gray-600 border-gray-600 rounded-md">
                     <form className="" style={{color:alter.is_fronting ? "violet" : "white"}} action={SetFront}>
