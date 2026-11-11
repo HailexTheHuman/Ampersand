@@ -14,7 +14,7 @@ import psycopg2
 import awscrt
 import botocore
 import boto3
-import bcrypt
+# import bcrypt
 # from cryptography.fernet import Fernet
 
 import logging
