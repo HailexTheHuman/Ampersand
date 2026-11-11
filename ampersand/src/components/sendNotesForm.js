@@ -17,9 +17,10 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
     let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black sm:ml-[2%]" : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
     let stylingForm = notBlurry ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[55%]" : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]"
+    let shyStyle = notBlurry ? "hidden" : "flex flex-row items-center text-center justify-between w-[75%] sm:max-h-[20%] max-w-[90%]"
     return(
         <div className={stylingDiv}>
-            <div className="flex flex-row items-center text-center justify-between w-[75%] max-h-[20%] max-w-[90%]">
+            <div className={shyStyle}>
                 <h3 id="message"></h3>
                 {state.predictions && state.predictions.map((prediction) => (
                     <div className="flex flex-col" key={prediction.name} >
