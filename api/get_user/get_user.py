@@ -62,9 +62,6 @@ def get_user(event, context):
     query_params = event['queryStringParameters']
     username = query_params.get('username')
     password = query_params.get('password')
-    logger.info(f"Query parameters: {query_params}")
-    logger.info(f"Fetching user with username: {username}")
-    logger.info(f"Password provided: {password}")
     # event_body = event['body']
     # event_body_json = json.loads(event_body)
     # username = event_body_json.get("username")

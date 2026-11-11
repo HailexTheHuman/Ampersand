@@ -29,7 +29,7 @@ function getAddFormData() {
 export function AddAlterForm({ username }) {
     
     return(
-        <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black sm:max-w-[40%] ml-[9%] sm:max-h-[90%]">
+        <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black sm:max-w-[40%] sm:max-h-[90%]">
             {/* <h3 id="message"></h3> */}
             <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => addAlter(getAddFormData(), username)}>
                 <div className="w-full max-h-[40%] min-h-[20%] sm:mt-[14%]">
@@ -76,7 +76,6 @@ export function EditAlterForm({ username }) {
     
     return(
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black sm:max-w-[40%] ml-[2%] sm:max-h-[90%]">
-            {/* <h3 id="message"></h3> */}
             <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => editAlter(getEditFormData(), username)}>
                 <div className="w-full max-h-[30%] min-h-[20%] sm:mt-[7%]">
                     <label htmlFor="oldName" className="">old name</label>
