@@ -16,7 +16,7 @@ export default async function Page() {
     if (!username) redirect("/login")
 
     return (
-        <main className="flex flex-row max-h-[75%] h-[75%]">
+        <main className="flex flex-row max-h-[75%] sm:h-[75%]">
             <ListNotes username={username}/>
             <div className="flex flex-col w-full h-full">
                 {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
