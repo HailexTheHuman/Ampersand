@@ -15,7 +15,7 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
     const [state, formAction, isPending] = useActionState(sendNote, initialState);
 
-    let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[90%] max-h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]" : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
+    let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black sm:ml-[2%]" : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
     let stylingForm = notBlurry ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[55%]" : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]"
     return(
         <div className={stylingDiv}>
