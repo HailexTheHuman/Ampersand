@@ -14,6 +14,7 @@ async function addAlter(formdata, username) {
         });
         let resJson = await respone.json()
         let status = await respone.status
+        console.log("resJson add alter", resJson)
         if (resJson.message == "Alter created successfully") {
             redirect('/profile')
         }
@@ -59,6 +60,7 @@ async function editAlter(formdata, username) {
         });
         let resJson = await respone.json()
         let status = await respone.status
+        console.log("resJson edit alter", resJson)
         if (resJson.message == "Alter edited successfully") {
             redirect('/profile')
         }
