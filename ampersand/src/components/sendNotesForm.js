@@ -41,7 +41,7 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
             <form className={stylingForm} action={formAction}>
                 <div className="w-full sm:flex sm:flex-col sm:flex-row sm:items-center w-[75%] sm:h-[75%] h-[90%] sm:max-h-[90%] max-w-[90%] mb-[3%]">
                     <label htmlFor="note" className="w-[15%] mr-[3%]">note</label>
-                    <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md min-w-[25%] min-h-[25%] w-[75%] sm:h-[75%] h-[90%] resize sm:max-w-[90%] sm:max-h-[75%] overflow-visible field-sizing-content" required/>
+                    <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md min-w-[25%] min-h-[25%] w-[75%] sm:h-[75%] h-[90%] sm:resize sm:max-w-[90%] sm:max-h-[75%] field-sizing-content" rows={10} required/>
                 </div>
                 {notBlurry &&
                 <div className="w-full">
