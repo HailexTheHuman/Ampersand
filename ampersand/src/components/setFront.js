@@ -19,6 +19,7 @@ export async function SetFront(formData) {
         body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
+    console.log("responeJ set front", responeJ)
     let status = respone.status
     if (status == 201) {
         revalidatePath('/profile')
