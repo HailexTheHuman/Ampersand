@@ -16,7 +16,7 @@ export default async function Page() {
     if (!username) redirect("/login")
 
     return (
-        <main className="flex sm:flex-row flex-col max-h-[75%] sm:h-[75%] h-full">
+        <main className="flex sm:flex-row flex-col max-h-[75%] sm:h-[75%] h-full overflow-auto">
             <div className="flex flex-col w-full h-full order-first sm:order-last">
                 {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                 <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>

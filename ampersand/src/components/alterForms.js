@@ -39,7 +39,7 @@ export function AddAlterForm({ username }) {
                 </div>
                 <div className="w-full max-h-[40%] min-h-[20%] ">
                     <label htmlFor="description" className="">description</label>
-                    <input type="text" name="description" id="description" placeholder="description" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]" required/>
+                    <input type="text" name="description" id="description" placeholder="description" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]"/>
                 </div>
                 <div className="w-full max-h-[40%] min-h-[20%] ">
                     <input type="submit" name="submit" id="submit" value={"Add alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
