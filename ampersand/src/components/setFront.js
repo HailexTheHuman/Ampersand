@@ -6,6 +6,7 @@ import { getCurrentTimestampWithOffset } from "./addNote";
 
 
 export async function SetFront(formData) {
+    console.log("hit setfront")
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
