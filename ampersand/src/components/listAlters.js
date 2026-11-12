@@ -11,13 +11,11 @@ export async function ListAlters({ username }) {
                     <form className="" style={{color:alter.is_fronting ? "violet" : "white"}} action={SetFront}>
                         <label htmlFor="name"></label>
                         <input type="text" name="name" id={alter.alter_id+"name"} value={alter.alter} readOnly className="text-center"/>
-                        {alter.description && 
+                        {/* {alter.description &&  */}
                         <div className="" >
-                            {/* <label htmlFor="description">description: </label>
-                            <input type="text" name="description" id={alter.alter_id+"description"} value={alter.description} readOnly className=""/> */}
                             <p id={alter.alter_id+"description"}> {alter.description} </p>
                         </div>
-                        }
+                        {/* } */}
                         {alter.is_fronting && 
                         <div>
                             <p id={alter.alter_id+"isFronting"}>is fronting</p>
