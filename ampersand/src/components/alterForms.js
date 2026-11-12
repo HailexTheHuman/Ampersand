@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 
 async function addAlter(formdata, username) {
-    if (formdata.name && formdata.description) {
+    if (formdata.name) {
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alter', {
             method: 'POST',
             headers: {
