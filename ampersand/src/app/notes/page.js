@@ -17,11 +17,11 @@ export default async function Page() {
 
     return (
         <main className="flex flex-row max-h-[75%] sm:h-[75%] h-full">
-            <ListNotes username={username}/>
             <div className="flex flex-col w-full h-full">
                 {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                 <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
             </div>
+            <ListNotes username={username} className="sm:order-first order-last"/>
         </main>
     )
 }
