@@ -21,7 +21,7 @@ export default async function Page() {
                 {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                 <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
             </div>
-            <ListNotes username={username} className="sm:order-first order-last"/>
+            <ListNotes username={username} className="order-last sm:order-first"/>
         </main>
     )
 }
