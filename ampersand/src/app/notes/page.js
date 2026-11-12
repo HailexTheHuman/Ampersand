@@ -17,7 +17,7 @@ export default async function Page() {
 
     return (
         <main className="flex flex-row max-h-[75%] sm:h-[75%] h-full">
-            <div className="flex flex-col w-full h-full">
+            <div className="flex flex-col w-full h-full order-first sm:order-last">
                 {canPredict && <a href="/identityCrisis" className="text-center">Who am I?</a>}
                 <SendNoteForm username={username} sendNote={addNote} notBlurry={true}><AuthorOptions/></SendNoteForm>
             </div>
