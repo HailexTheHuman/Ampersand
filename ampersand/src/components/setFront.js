@@ -42,7 +42,9 @@ export async function AddFront(formData) {
         body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
+    console.log("responeJ add front", responeJ)
     let status = respone.status
+    console.log("status add front", status)
     if (status == 201) {
         revalidatePath('/profile')
     }
@@ -61,7 +63,9 @@ export async function RemoveFront(formData) {
         body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
+    console.log("responeJ remove front", responeJ)
     let status = respone.status
+    console.log("status remove front", status)
     if (status == 201) {
         revalidatePath('/profile')
     }
