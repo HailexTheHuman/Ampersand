@@ -1,6 +1,5 @@
 "use server"
 
-import { setCookie } from "cookies-next/client";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 
