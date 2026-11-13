@@ -45,7 +45,7 @@ async function FrontDivs({ alters, fronts, today }) {
                 {
                     hours.map((hour, index) => {
                         return (
-                            <div key={hour} className="absolute sm:left-1/2 left-3/4 -translate-x-1/2"
+                            <div key={hour} className="absolute sm:left-1/2 left-1 -translate-x-1/2"
                                 style={{
                                     height: `${((DAY_MS/24) / DAY_MS) * 100}%`,
                                     top: `${((((index+1)*2*60*60*1000)) / DAY_MS) * 100}%`,
@@ -71,7 +71,7 @@ async function FrontDivs({ alters, fronts, today }) {
                             let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
                             let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
-                                <div key={front.front_id} className="absolute sm:left-1/2 left-3/4 w-4 -translate-x-1/2 rounded-2xl"
+                                <div key={front.front_id} className="absolute sm:left-1/2 left-1 w-4 -translate-x-1/2 rounded-2xl"
                                 style={{
                                     height: `${height}%`,
                                     top: `${top}%`,
