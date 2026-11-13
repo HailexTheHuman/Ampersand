@@ -71,7 +71,7 @@ async function FrontDivs({ alters, fronts, today }) {
                             let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
                             let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
-                                <div key={front.front_id} className="absolute sm:left-1/2 left-1/4 w-4 -translate-x-1/2 rounded-2xl"
+                                <div key={front.front_id} className="absolute sm:left-1/2 w-4 sm:-translate-x-1/2 rounded-2xl"
                                 style={{
                                     height: `${height}%`,
                                     top: `${top}%`,
@@ -80,7 +80,7 @@ async function FrontDivs({ alters, fronts, today }) {
                                 />
                             )
                         })}
-                        <h4 className="fixed min-w-[1%] w-[2%] max-w-[50%] sm:-translate-x-[50%] translate-x-[90%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
+                        <h4 className="fixed min-w-[1%] w-[2%] max-w-[50%] sm:-translate-x-[50%] -translate-x-[90%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
                     </div>
                 )
             })}
