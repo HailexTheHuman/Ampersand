@@ -59,7 +59,7 @@ async function FrontDivs({ alters, fronts, today }) {
             {alters && alters.map((alter, index) => {
                 alterI++
                 return (
-                    <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[1%] sm:left-0 left-1/4">
+                    <div key={alter.alter_id} id={alter.alter} className="relative sm:mx-[2%] mx-[5%] h-[100%] min-w-[1%] w-[1%] sm:left-0 left-3/8">
                         {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
 
