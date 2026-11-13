@@ -40,7 +40,7 @@ async function FrontDivs({ alters, fronts, today }) {
     let alterI = 0
     return (
         <div className="relative flex flex-rows text-center w-[90%] h-[90%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto overflow-x-auto overscroll-x-auto  scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
-            <div id="times" className="relative mx-[2%] h-[100%] min-w-[7%] w-[7%]">
+            <div id="times" className="relative mx-[2%] h-[100%] min-w-[7%] w-[8%]">
                 {/* <h4 className="fixed h-[10%] order-first">{months[month]} {date.toString()}, {year}</h4> */}
                 {
                     hours.map((hour, index) => {
