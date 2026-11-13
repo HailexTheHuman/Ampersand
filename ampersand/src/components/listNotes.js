@@ -2,7 +2,7 @@
 
 export async function ListNotes({ username }) {
     // let results = await fetch(`http://localhost:8080/notes?username=${encodeURIComponent(username)}`, { cache: "no-store"})
-    let results = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/notes?username=${encodeURIComponent(username)}`, { cache: "no-store"})
+    let results = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_notes?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let notesJ = await results.json();
     let notes = notesJ.notes
     
