@@ -54,7 +54,7 @@ async function FrontDivs({ alters, fronts, today }) {
                         )
                     })
                 }
-                <h4 className="relative order-first bg-black">{months[month]} {date.toString()}, {year}</h4>
+                <h4 className="relative sticky top-0 order-first bg-black">{months[month]} {date.toString()}, {year}</h4>
             </div>
             {alters && alters.map((alter, index) => {
                 alterI++
@@ -80,7 +80,7 @@ async function FrontDivs({ alters, fronts, today }) {
                                 />
                             )
                         })}
-                        <h4 className="relative min-w-[1%] w-[2%] max-w-[50%] sm:-translate-x-[50%] -translate-x-[90%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
+                        <h4 className="relative sticky top-0 min-w-[1%] w-[2%] max-w-[50%] sm:-translate-x-[50%] -translate-x-[90%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
                     </div>
                 )
             })}
