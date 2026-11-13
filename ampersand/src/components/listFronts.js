@@ -36,7 +36,6 @@ async function FrontDivs({ alters, fronts, today }) {
     let date = today.getDate()
     let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     let hours = ["Midnight", "11PM", "10PM", "9PM", "8PM", "7PM", "6PM", "5PM", "4PM", "3PM", "2PM", "1PM", "Noon", "11AM", "10AM", "9AM", "8AM", "7AM", "6AM", "5AM", "4AM", "3AM", "2AM", "1AM"]
-    let hoursInt = [24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     let colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
     let alterI = 0
     return (
@@ -46,7 +45,7 @@ async function FrontDivs({ alters, fronts, today }) {
                 {
                     hours.map((hour, index) => {
                         return (
-                            <div key={hour} className="absolute left-1/2 -translate-x-1/2 rounded-2xl"
+                            <div key={hour} className="absolute sm:left-1/2 left-3/4 -translate-x-1/2"
                                 style={{
                                     height: `${((DAY_MS/24) / DAY_MS) * 100}%`,
                                     top: `${((((index+1)*2*60*60*1000)) / DAY_MS) * 100}%`,
@@ -72,7 +71,7 @@ async function FrontDivs({ alters, fronts, today }) {
                             let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
                             let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
-                                <div key={front.front_id} className="absolute left-1/2 w-4 -translate-x-1/2 rounded-2xl"
+                                <div key={front.front_id} className="absolute sm:left-1/2 left-3/4 w-4 -translate-x-1/2 rounded-2xl"
                                 style={{
                                     height: `${height}%`,
                                     top: `${top}%`,
@@ -81,7 +80,7 @@ async function FrontDivs({ alters, fronts, today }) {
                                 />
                             )
                         })}
-                        <h4 className="fixed min-w-[1%] w-[2%] max-w-[50%] -translate-x-[50%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
+                        <h4 className="fixed min-w-[1%] w-[2%] max-w-[50%] sm:-translate-x-[50%] order-first bg-black" style={{color:alter.is_fronting ? "violet" : "white"}}>{alter.alter}</h4>
                     </div>
                 )
             })}
