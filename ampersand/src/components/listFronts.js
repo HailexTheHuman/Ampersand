@@ -59,7 +59,7 @@ async function FrontDivs({ alters, fronts, today }) {
             {alters && alters.map((alter, index) => {
                 alterI++
                 return (
-                    <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[1%] ">
+                    <div key={alter.alter_id} id={alter.alter} className="relative mx-[2%] h-[100%] min-w-[1%] w-[1%] sm:left-0 left-1/16">
                         {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
 
@@ -71,7 +71,7 @@ async function FrontDivs({ alters, fronts, today }) {
                             let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
                             let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
-                                <div key={front.front_id} className="absolute sm:left-1/2 w-4 sm:-translate-x-1/2 rounded-2xl"
+                                <div key={front.front_id} className="absolute sm:left-1/2 w-4 sm:-translate-x-1/2 translate-x-3/4 rounded-2xl"
                                 style={{
                                     height: `${height}%`,
                                     top: `${top}%`,
