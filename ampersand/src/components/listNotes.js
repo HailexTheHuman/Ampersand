@@ -6,7 +6,7 @@ export async function ListNotes({ username }) {
     let notesJ = await results.json();
     let notes = notesJ.notes
     const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log("timezone", detectedZone)
+    console.log("timezone list notes", detectedZone)
     
     return (
         <div className="flex flex-col items-center text-center justify-between w-[34%] sm:border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
