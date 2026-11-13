@@ -33,6 +33,7 @@ export async function AddFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
+    console.log("current time is: ", time)
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/add_to_front', {
         method: 'POST',
