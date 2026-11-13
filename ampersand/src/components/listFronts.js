@@ -45,7 +45,7 @@ async function FrontDivs({ alters, fronts, today }) {
                 {
                     hours.map((hour, index) => {
                         return (
-                            <div key={hour} className="absolute sm:left-1/2 left-63/64 -translate-x-1/2"
+                            <div key={hour} className="absolute sm:left-1/2 left-15/16 -translate-x-1/2"
                                 style={{
                                     height: `${((DAY_MS/24) / DAY_MS) * 100}%`,
                                     top: `${((((index+1)*2*60*60*1000)) / DAY_MS) * 100}%`,
@@ -54,7 +54,7 @@ async function FrontDivs({ alters, fronts, today }) {
                         )
                     })
                 }
-                <h4 className="relative sticky order-first w-full bg-black">{months[month]} {date.toString()}, {year}</h4>
+                <h4 className="relative sticky top-0 order-first w-full bg-black">{months[month]} {date.toString()}, {year}</h4>
             </div>
             {alters && alters.map((alter, index) => {
                 alterI++
