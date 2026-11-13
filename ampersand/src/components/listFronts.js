@@ -54,7 +54,7 @@ async function FrontDivs({ alters, fronts, today }) {
                         )
                     })
                 }
-                <h4 className="relative sticky top-0 order-first w-15 bg-black">{months[month]} {date.toString()}, {year}</h4>
+                <h4 className="relative sticky top-0 order-first w-25 bg-black">{months[month]} {date.toString()}, {year}</h4>
             </div>
             {alters && alters.map((alter, index) => {
                 alterI++
