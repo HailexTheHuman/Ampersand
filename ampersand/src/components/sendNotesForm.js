@@ -45,7 +45,7 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
                     <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:min-w-[50%] sm:min-h-[50%] sm:w-[75%] sm:h-[75%] resize sm:max-w-[90%] sm:max-h-[75%] field-sizing-content [field-sizing:content] min-h-[75%] h-full mb-[3%] sm:mb-0" required/>
                 </div>
                 {notBlurry &&
-                <div className="w-full">
+                <div className="w-full mt-[3%]">
                     <label htmlFor="author" className="mr-[3%]">author</label>
                     {children}
                 </div>

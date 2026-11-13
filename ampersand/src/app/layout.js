@@ -32,7 +32,7 @@ export default async function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className="min-h-[20%] flex flex-col max-h-[100%] h-[97%] overflow-y-auto overscroll-y-auto">
+      <body className="min-h-[20%] flex flex-col max-h-[100%] h-[97%] bg-black overflow-y-auto overscroll-y-auto">
         <header className="py-5 items-center">
           <div className="container mx-auto  items-center">
             <h2 className="text-xs mb-[2%] text-center text-red-600 sm:text-2xl">Disclaimer: this is being made by a college student for their capstone. This does not replace profressional help and machine learning is not perfect, use this as a tool not a solution.</h2>

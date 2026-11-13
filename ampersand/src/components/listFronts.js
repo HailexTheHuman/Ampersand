@@ -11,7 +11,7 @@ export async function ListFronts({ username }) {
     let dayCookie = cookieStore.get("day")?.value
     let today = dayCookie ? new Date(dayCookie) : new Date()
 
-    let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/fronthistory?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
+    let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
     let fronts = frontsj.fronts
 
