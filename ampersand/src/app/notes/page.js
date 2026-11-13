@@ -13,6 +13,9 @@ export default async function Page() {
     let jsonRes = await respone.json()
     const canPredict = jsonRes.can_predict
 
+    const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log("timezone page", detectedZone)
+
     if (!username) redirect("/login")
 
     return (
