@@ -28,9 +28,9 @@ export async function ListFronts({ username }) {
 
 
 async function FrontDivs({ alters, fronts, today }) {
-    let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+    // let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
-    let dayEnd = dayStart + DAY_MS
+    // let dayEnd = dayStart + DAY_MS
     let year = today.getFullYear()
     let month = today.getMonth()
     let date = today.getDate()
@@ -67,8 +67,9 @@ async function FrontDivs({ alters, fronts, today }) {
                                 <ClientZoneFront
                                     key={front.front_id}
                                     front={front}
-                                    dayStart={dayStart}
-                                    dayEnd={dayEnd}
+                                    today={today}
+                                    // dayStart={dayStart}
+                                    // dayEnd={dayEnd}
                                     colors={colors}
                                     index={alterI}
                                 />

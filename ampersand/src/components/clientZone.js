@@ -19,7 +19,11 @@ export function ClientZoneNote({ note }) {
 
 
 
-export function ClientZoneFront({ front, dayStart, dayEnd, colors, index }) {
+export function ClientZoneFront({ front, today, colors, index }) {
+
+    let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+    let DAY_MS = 24 * 60 * 60 * 1000
+    let dayEnd = dayStart + DAY_MS
 
     const [detectedZone, setDetectedZone] = useState(null);
 
@@ -30,7 +34,6 @@ export function ClientZoneFront({ front, dayStart, dayEnd, colors, index }) {
 
     const zoneInMilliseconds = detectedZone ? new Date().toLocaleString("en-US", { timeZone: detectedZone, timeZoneName: "shortOffset" }).match(/GMT([+-]\d{1,2}(?::\d{2})?)/)?.[1] : null;
 
-    let DAY_MS = 24 * 60 * 60 * 1000
     let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
     let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
     if (endTime <= startTime) return null
