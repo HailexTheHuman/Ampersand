@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export function ClientZone() {
+export function clientZone() {
     const [detectedZone, setDetectedZone] = useState(null);
 
     useEffect(() => {
