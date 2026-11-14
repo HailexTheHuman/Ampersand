@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { ClientZoneFront } from "./clientZone";
 import { ClientTimeZone } from "./clientCurrentTime";
+let timezone = ClientTimeZone()
 
 export async function ListFronts({ username }) {
     await connection()
@@ -11,7 +12,6 @@ export async function ListFronts({ username }) {
     const cookieStore = await cookies()
     let dayCookie = cookieStore.get("day")?.value
     let today = dayCookie ? new Date(dayCookie) : new Date()
-    let timezone = ClientTimeZone()
 
     let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
