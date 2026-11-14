@@ -1,5 +1,5 @@
 // "use server"
-import { ClientZone } from "@/components/clientZone"
+import { ClientZoneNote } from "@/components/clientZone"
 
 export async function ListNotes({ username }) {
     // let results = await fetch(`http://localhost:8080/notes?username=${encodeURIComponent(username)}`, { cache: "no-store"})
@@ -16,7 +16,7 @@ export async function ListNotes({ username }) {
                 <div key={note.note_id} className="flex flex-col items-center text-center justify-between w-full border-1 outline-gray-600 border-gray-600 rounded-md">
                     <p>note: {note.note}</p>
                     {note.author && <p>author: {note.author}</p>}
-                    {note.time && <ClientZone note={note}/>}
+                    {note.time && <ClientZoneNote note={note}/>}
                 </div>
             ))}
         </div>

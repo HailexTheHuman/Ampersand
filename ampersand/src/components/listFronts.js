@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { connection } from "next/server";
+import { ClientZoneFront } from "./clientZone";
 
 export async function ListFronts({ username }) {
     await connection()
@@ -62,20 +63,14 @@ async function FrontDivs({ alters, fronts, today }) {
                         {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
 
-                            let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
-                            let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
-                            if (endTime <= startTime) return null
-
-                            // let top = (((dayEnd - endTime) * 2 + 2 * 60 * 60 * 1000) / DAY_MS) * 100
-                            let top = (((dayEnd - endTime) * 2 + 2.75 * 60 * 60 * 1000) / DAY_MS) * 100
-                            let height = ((endTime - startTime) * 2 / DAY_MS) * 100
                             return (
-                                <div key={front.front_id} className="absolute sm:left-1/2 w-4 sm:-translate-x-1/2 translate-x-3/4 rounded-2xl"
-                                style={{
-                                    height: `${height}%`,
-                                    top: `${top}%`,
-                                    backgroundColor: colors[index%colors.length]
-                                }}
+                                <ClientZoneFront
+                                    key={front.front_id}
+                                    front={front}
+                                    dayStart={dayStart}
+                                    dayEnd={dayEnd}
+                                    colors={colors}
+                                    index={alterI}
                                 />
                             )
                         })}
