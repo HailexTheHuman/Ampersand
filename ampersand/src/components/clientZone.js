@@ -31,8 +31,8 @@ export function ClientZoneFront({ front, dayStart, dayEnd, colors, index }) {
     const zoneInMilliseconds = detectedZone ? new Date().toLocaleString("en-US", { timeZone: detectedZone, timeZoneName: "shortOffset" }).match(/GMT([+-]\d{1,2}(?::\d{2})?)/)?.[1] : null;
 
     let DAY_MS = 24 * 60 * 60 * 1000
-    let startTime = Math.max(new Date(new Date(front.start_time).toLocaleString("en-US", { timeZone: detectedZone })).getTime(), dayStart)
-    let endTime = Math.min(front.end_time ? new Date(new Date(front.end_time).toLocaleString("en-US", { timeZone: detectedZone })).getTime() : Date.now(), dayEnd)
+    let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
+    let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
     if (endTime <= startTime) return null
 
     // let top = (((dayEnd - endTime) * 2 + 2 * 60 * 60 * 1000) / DAY_MS) * 100
