@@ -41,10 +41,12 @@ def get_history(event, context):
     year = query_params.get('year')
     month = query_params.get('month')
     day = query_params.get('day')
+    timezone = query_params.get('zone')
     try:
-        from datetime import date
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
         print(f"year {year} month {month} day {day}")
-        today = date(int(year), int(month), int(day))
+        today = datetime(int(year), int(month), int(day), tzinfo=ZoneInfo(timezone)).date()
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
         conn = psycopg2.connect(
             host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',

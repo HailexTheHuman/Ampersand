@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { getCurrentTimestampWithOffset } from "./addNote";
+import { getCurrentTimestampWithOffset } from "./clientCurrentTime";
 
 
 export async function SetFront(formData) {
     console.log("hit setfront")
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
-    const time = await getCurrentTimestampWithOffset()
+    const time = getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/set_front', {
         method: 'POST',
@@ -32,7 +32,7 @@ export async function SetFront(formData) {
 export async function AddFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
-    const time = await getCurrentTimestampWithOffset()
+    const time = getCurrentTimestampWithOffset()
     console.log("current time is: ", time)
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/add_to_front', {
@@ -54,7 +54,7 @@ export async function AddFront(formData) {
 export async function RemoveFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
-    const time = await getCurrentTimestampWithOffset()
+    const time = getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/remove_front', {
         method: 'POST',
