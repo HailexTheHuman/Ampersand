@@ -2,7 +2,7 @@ import { addNote } from "@/components/addNote";
 import { SendNoteForm } from "@/components/sendNotesForm";
 import { AuthorOptions } from "@/components/authorOptions";
 import { ListNotes } from "@/components/listNotes"
-import { clientZone } from "@/components/clientZone"
+// import { clientZone } from "@/components/clientZone"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 export const instant = false;
@@ -14,8 +14,8 @@ export default async function Page() {
     let jsonRes = await respone.json()
     const canPredict = jsonRes.can_predict
 
-    // const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const detectedZone = clientZone();
+    const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // const detectedZone = clientZone();
     console.log("timezone page", detectedZone)
 
     if (!username) redirect("/login")

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export function clientZone() {
+export function ClientZone({ note }) {
     const [detectedZone, setDetectedZone] = useState(null);
 
     useEffect(() => {
@@ -10,10 +10,8 @@ export function clientZone() {
         setDetectedZone(zone);
     }, []);
 
-    // return (
-    //     <div>
-    //         {detectedZone && <p>Detected Timezone: {detectedZone}</p>}
-    //     </div>
-    // );
-    return detectedZone;
+    return (
+        detectedZone && <p>time: {new Date(note.time).toLocaleString(undefined, { timeZone: detectedZone })}</p>
+    );
+    // return detectedZone;
 }
