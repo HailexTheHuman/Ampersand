@@ -8,7 +8,7 @@ export function setDay(router) {
     let chosenDate = document.getElementById('chooseDate').value;
     const [y, m, d] = chosenDate.split("-").map(Number)
     // let next = y+"-"+(m)+"-"+(d+1)
-    const next = new Date(y, m - 1, d + 1)
+    const next = new Date(y, m - 1, d)
     const fixedDate = [
         next.getFullYear(),
         String(next.getMonth() + 1).padStart(2, "0"),
