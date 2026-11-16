@@ -2,13 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { getCurrentTimestampWithOffset } from "./clientCurrentTime";
+// import { getCurrentTimestampWithOffset } from "./clientCurrentTime";
+import { getCurrentTimestampWithOffset } from "./addNote";
 
 
 export async function SetFront(formData) {
     console.log("hit setfront")
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
+    const zone = formData.get("zone")
     const time = getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/set_front', {
@@ -16,7 +18,7 @@ export async function SetFront(formData) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
+        body: JSON.stringify({ username:username, alter_name:alter_name, zone:zone, time:time })
     });
     let responeJ = await respone.json()
     console.log("responeJ set front", responeJ)
@@ -32,6 +34,7 @@ export async function SetFront(formData) {
 export async function AddFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
+    const zone = formData.get("zone")
     const time = getCurrentTimestampWithOffset()
     console.log("current time is: ", time)
     // const respone = await fetch('http://localhost:8080/front', {
@@ -40,7 +43,7 @@ export async function AddFront(formData) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
+        body: JSON.stringify({ username:username, alter_name:alter_name, zone:zone, time:time })
     });
     let responeJ = await respone.json()
     console.log("responeJ add front", responeJ)
@@ -54,6 +57,7 @@ export async function AddFront(formData) {
 export async function RemoveFront(formData) {
     const username = (await cookies()).get("username")?.value
     const alter_name = formData.get("name")
+    const zone = formData.get("zone")
     const time = getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/remove_front', {
@@ -61,7 +65,7 @@ export async function RemoveFront(formData) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username:username, alter_name:alter_name, time:time })
+        body: JSON.stringify({ username:username, alter_name:alter_name, zone:zone, time:time })
     });
     let responeJ = await respone.json()
     console.log("responeJ remove front", responeJ)

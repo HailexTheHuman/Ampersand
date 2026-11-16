@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { ListAlters } from "@/components/listAlters"
 import { AddAlterForm, EditAlterForm } from "@/components/alterForms";
+import { getCurrentTimestampWithOffset } from "@/components/clientCurrentTime";
 export const instant = false;
 export default async function Page() {
     
@@ -26,7 +27,7 @@ export default async function Page() {
                         <EditAlterForm username={username}/>
                     </div>
                 </div>
-                <ListAlters username={username} className=""/>
+                <ListAlters username={username} zone={ClientTimeZone()} className=""/>
             </div>
         </main>
     )

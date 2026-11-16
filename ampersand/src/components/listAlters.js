@@ -1,6 +1,6 @@
 import { AddFront, RemoveFront, SetFront } from "./setFront";
 
-export async function ListAlters({ username }) {
+export async function ListAlters({ username, zone }) {
     let results = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/alters?username=${encodeURIComponent(username)}`, { cache: "no-store"})
     let altersj = await results.json();
     let alters = altersj.alters
@@ -21,6 +21,7 @@ export async function ListAlters({ username }) {
                             <p id={alter.alter_id+"isFronting"}>is fronting</p>
                         </div>
                         }
+                        <input type="text" name="zone" id={alter.alter_id+"zone"} value={zone} readOnly className="hidden"/>
                         <input type="submit" name="submit" id="submit" value={"set to front"} className={alter.is_fronting ? "hidden":"" }/>
                     </form>
 
@@ -29,11 +30,13 @@ export async function ListAlters({ username }) {
                     <form className="" action={AddFront} style={{color:alter.is_fronting ? "violet" : "white"}}>
                         <label htmlFor="name" className="hidden">name: </label>
                         <input type="text" name="name" id={alter.alter_id+"name"} value={alter.alter} readOnly className="hidden"/>
+                        <input type="text" name="zone" id={alter.alter_id+"zone"} value={zone} readOnly className="hidden"/>
                         <input type="submit" name="submit" id="submit" value={"add to front"} className={alter.is_fronting ? "hidden":"" }/>
                     </form>
                     <form className="" action={RemoveFront} style={{color:alter.is_fronting ? "violet" : "white"}}>
                         <label htmlFor="name" className="hidden">name: </label>
                         <input type="text" name="name" id={alter.alter_id+"name"} value={alter.alter} readOnly className="hidden"/>
+                        <input type="text" name="zone" id={alter.alter_id+"zone"} value={zone} readOnly className="hidden"/>
                         <input type="submit" name="submit" id="submit" value={"Remove from front"} className={alter.is_fronting ? "":"hidden" }/>
                     </form>
                 </div>
