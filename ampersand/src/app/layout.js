@@ -22,7 +22,7 @@ export const instant = false;
 export default async function RootLayout({ children }) {
   let store = await cookies()
   const storeBought = store.get("username")?.value
-  console.log("layout storeBought ", storeBought)
+  // console.log("layout storeBought ", storeBought)
   
   return (
     <html

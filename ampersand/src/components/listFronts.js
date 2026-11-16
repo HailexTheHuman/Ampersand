@@ -10,11 +10,12 @@ export async function ListFronts({ username }) {
     
     const cookieStore = await cookies()
     let dayCookie = cookieStore.get("day")?.value
+    let zoneCookie = cookieStore.get("timezone")?.value
     let today = dayCookie ? new Date(dayCookie) : new Date()
     // let timezone = ClientTimeZone()
 
     // let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})
-    let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}`, { cache: "no-store"})
+    let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(zoneCookie)}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
     let fronts = frontsj.fronts
 

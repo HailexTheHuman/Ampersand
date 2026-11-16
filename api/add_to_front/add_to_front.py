@@ -36,9 +36,11 @@ def response(code, body):
 
 def add_to_front(event, context):
     body = json.loads(event["body"])
+    logger.info(f"Received event: {event}")
     username = body.get("username")
     alter_name = body.get("alter_name")
     time = body.get("time")
+    zone = body.get("zone")
     try:
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
         conn = psycopg2.connect(
