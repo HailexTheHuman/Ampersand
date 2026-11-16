@@ -27,7 +27,7 @@ export default async function Page() {
                         <EditAlterForm username={username}/>
                     </div>
                 </div>
-                <ListAlters username={username} zone={ClientTimeZone()} className=""/>
+                <ListAlters username={username} zone={ClientTimeZone} className=""/>
             </div>
         </main>
     )
