@@ -16,6 +16,7 @@ async function login(formdata, setUsername, setPassword, router) {
         let status = await respone.status
         if (status == 200) {
             setCookie("username", formdata.username, {maxAge: 14400})
+            setCookie("zone", formdata.zone, {maxAge: 14400})
             router.refresh()
             redirect("/profile")
         } else {
@@ -28,7 +29,8 @@ async function login(formdata, setUsername, setPassword, router) {
 function getFormData() {
     let username = document.getElementById('username').value;
     let password = document.getElementById('password').value;
-    return { username, password };
+    let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return { username, password, zone };
 }
 
 
