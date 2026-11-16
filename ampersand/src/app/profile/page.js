@@ -2,7 +2,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { ListAlters } from "@/components/listAlters"
 import { AddAlterForm, EditAlterForm } from "@/components/alterForms";
-import { getCurrentTimestampWithOffset } from "@/components/clientCurrentTime";
+import { ClientTimeZone } from "@/components/clientCurrentTime";
 export const instant = false;
 export default async function Page() {
     
