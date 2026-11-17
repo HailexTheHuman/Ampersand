@@ -27,7 +27,7 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
         targetOffsetMs = parseInt(targetOffset.slice(3, 6)) * 3600000;
     }
 
-    let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() + targetOffsetMs
+    let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() - targetOffsetMs
     let DAY_MS = 24 * 60 * 60 * 1000
     let dayEnd = dayStart + DAY_MS
 
