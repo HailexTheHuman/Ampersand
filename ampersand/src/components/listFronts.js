@@ -13,7 +13,7 @@ export async function ListFronts({ username }) {
     let zoneCookie = cookieStore.get("zone")?.value
     console.log("dayCookie: ", dayCookie)
     console.log("zoneCookie: ", zoneCookie)
-    let today = dayCookie ? new Date(dayCookie) : new Date()
+    let today = dayCookie ? new Date(new Date(dayCookie).getTime()-24*60*60*1000) : new Date()
     // let timezone = ClientTimeZone()
 
     // let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})
