@@ -23,9 +23,9 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
 
     let targetOffsetMs = 0
     if (zone) {
-        const targetOffset = new Date().toLocaleString("en-US", { timeZone: zone, timeZoneName: "short" });
+        const targetOffset = new Date().toLocaleString("en-US", { timeZone: zone, timeZoneName: "short" }).split(" ")[3]; //mst or other abbreviations
         console.log("targetOffset: ", targetOffset)
-        targetOffsetMs = parseInt(targetOffset.slice(3, 6)) * 3600000;
+        targetOffsetMs = new Date(`1970-01-01T00:00:00${targetOffset}`).getTime()
     }
 
     console.log("targetOffsetMs: ", targetOffsetMs)
