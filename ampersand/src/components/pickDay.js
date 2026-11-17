@@ -7,14 +7,11 @@ import { useRouter } from "next/navigation";
 export function setDay(router) {
     let chosenDate = document.getElementById('chooseDate').value;
     const [y, m, d] = chosenDate.split("-").map(Number)
-    let zone = getCookies().zone
-    console.log("zone cookie: ", zone)
     const next = new Date(y, m - 1, d)
     const fixedDate = [
         next.getFullYear(),
         String(next.getMonth() + 1).padStart(2, "0"),
         String(next.getDate()).padStart(2, "0"),
-        zone ? zone : "UTC"
     ].join("-")
 
 
