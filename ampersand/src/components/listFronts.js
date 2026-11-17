@@ -31,12 +31,12 @@ export async function ListFronts({ username }) {
     console.log("alters: ", alters)
     
     return (
-        <FrontDivs alters={alters} fronts={fronts} today={today}/>
+        <FrontDivs alters={alters} fronts={fronts} today={today} zone={zoneCookie}/>
     )
 }
 
 
-async function FrontDivs({ alters, fronts, today }) {
+async function FrontDivs({ alters, fronts, today, zone }) {
     // let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
     // let dayEnd = dayStart + DAY_MS
@@ -81,6 +81,7 @@ async function FrontDivs({ alters, fronts, today }) {
                                     // dayEnd={dayEnd}
                                     colors={colors}
                                     index={alterI}
+                                    zone={zone}
                                 />
                             )
                         })}
