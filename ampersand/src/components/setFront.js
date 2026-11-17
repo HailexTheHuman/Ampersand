@@ -26,8 +26,8 @@ export async function SetFront(formData) {
     let status = respone.status
     console.log("status set front", status)
     if (status == 201) {
-        revalidatePath('/profile')
-        await refresh()
+        revalidatePath('/')
+        // await refresh()
     }
 }
 
@@ -52,8 +52,8 @@ export async function AddFront(formData) {
     let status = respone.status
     console.log("status add front", status)
     if (status == 201) {
-        revalidatePath('/profile')
-        await refresh()
+        revalidatePath('/')
+        // await refresh()
     }
 }
 
@@ -75,7 +75,7 @@ export async function RemoveFront(formData) {
     let status = respone.status
     console.log("status remove front", status)
     if (status == 201) {
-        revalidatePath('/profile')
-        await refresh()
+        revalidatePath('/')
+        // await refresh()
     }
 }
