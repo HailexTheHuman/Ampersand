@@ -33,17 +33,17 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
     //     const targetOffsetStr = tzPart === "GMT" ? "+00:00" : tzPart.replace("GMT", "");
     //     targetOffsetMs = new Date(`1970-01-01T00:00:00${targetOffsetStr}`).getTime()
     // }
-    let targetOffsetMs = new Date().getTimezoneOffset() * 60 * 1000
+    // let targetOffsetMs = new Date().getTimezoneOffset() * 60 * 1000
 
-    console.log("targetOffsetMs: ", targetOffsetMs)
+    // console.log("targetOffsetMs: ", targetOffsetMs)
 
     let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
     let dayEnd = dayStart + DAY_MS
 
 
-    let startTime = Math.max(new Date(front.start_time).getTime(), dayStart) + targetOffsetMs
-    let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd) + targetOffsetMs
+    let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
+    let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
     if (endTime <= startTime) return null
 
     // let top = (((dayEnd - endTime) * 2 + 2 * 60 * 60 * 1000) / DAY_MS) * 100
