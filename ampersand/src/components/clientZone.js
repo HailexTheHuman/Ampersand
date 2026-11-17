@@ -27,7 +27,7 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
         // console.log("targetOffset: ", targetOffset)
         // let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const parts = new Intl.DateTimeFormat("en-US", {
-            timeZone,
+            timeZone: zone,
             timeZoneName: "longOffset", // Returns strings like "GMT-07:00" or "GMT"
         }).formatToParts(new Date());
 
