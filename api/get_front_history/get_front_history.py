@@ -42,12 +42,15 @@ def get_history(event, context):
     month = query_params.get('month')
     day = query_params.get('day')
     timezone = query_params.get('zone')
+    conn = None
     try:
         from datetime import datetime
         from zoneinfo import ZoneInfo
         print(f"year {year} month {month} day {day}")
         today = datetime(int(year), int(month), int(day), tzinfo=ZoneInfo(timezone)).date()
+        logger.info(f"today: {today}")
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
+        logger.info(f"auth_token: {auth_token}")
         conn = psycopg2.connect(
             host='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com',
             port=5432,
@@ -56,6 +59,7 @@ def get_history(event, context):
             password=auth_token,
             sslmode='require'
         )
+        logger.info(f"conn: {conn}")
         cur = conn.cursor()
         user_id = None
         cur.execute('SELECT user_id FROM "Users" WHERE username = %s', (username,))
@@ -89,6 +93,6 @@ def get_history(event, context):
         # return fastapi.responses.JSONResponse(status_code=500, content={"error": str(e)})
         return response(500, {"error": str(e)})
     finally:
-        if conn:
+        if conn is not None:
             cur.close()
             conn.close()

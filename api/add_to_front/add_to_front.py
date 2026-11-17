@@ -36,7 +36,7 @@ def response(code, body):
 
 def add_to_front(event, context):
     body = json.loads(event["body"])
-    logger.info(f"Received event: {event}")
+    logger.info(f"Received event: {body}")
     username = body.get("username")
     alter_name = body.get("alter_name")
     time = body.get("time")

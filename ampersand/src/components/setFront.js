@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { refresh } from "next/navigation";
 // import { getCurrentTimestampWithOffset } from "./clientCurrentTime";
 import { getCurrentTimestampWithOffset } from "./addNote";
 
@@ -11,7 +12,7 @@ export async function SetFront(formData) {
     const username = (await cookies()).get("username")?.value
     const zone = (await cookies()).get("zone")?.value
     const alter_name = formData.get("name")
-    const time = getCurrentTimestampWithOffset()
+    const time = await getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/set_front', {
         method: 'POST',
@@ -26,6 +27,7 @@ export async function SetFront(formData) {
     console.log("status set front", status)
     if (status == 201) {
         revalidatePath('/profile')
+        refresh()
     }
 }
 
@@ -35,7 +37,7 @@ export async function AddFront(formData) {
     const username = (await cookies()).get("username")?.value
     const zone = (await cookies()).get("zone")?.value
     const alter_name = formData.get("name")
-    const time = getCurrentTimestampWithOffset()
+    const time = await getCurrentTimestampWithOffset()
     console.log("current time is: ", time)
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/add_to_front', {
@@ -51,6 +53,7 @@ export async function AddFront(formData) {
     console.log("status add front", status)
     if (status == 201) {
         revalidatePath('/profile')
+        refresh()
     }
 }
 
@@ -58,7 +61,7 @@ export async function RemoveFront(formData) {
     const username = (await cookies()).get("username")?.value
     const zone = (await cookies()).get("zone")?.value
     const alter_name = formData.get("name")
-    const time = getCurrentTimestampWithOffset()
+    const time = await getCurrentTimestampWithOffset()
     // const respone = await fetch('http://localhost:8080/front', {
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/remove_front', {
         method: 'POST',
@@ -73,5 +76,6 @@ export async function RemoveFront(formData) {
     console.log("status remove front", status)
     if (status == 201) {
         revalidatePath('/profile')
+        refresh()
     }
 }
