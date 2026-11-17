@@ -35,7 +35,7 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
 
             // Strip "GMT" to get "-07:00", or return "+00:00" for UTC/GMT
         const targetOffsetStr = tzPart === "GMT" ? "+00:00" : tzPart.replace("GMT", "");
-        targetOffsetMs = new Date(`1970-01-01T00:00:00 ${targetOffsetStr}`).getTime()
+        targetOffsetMs = new Date(`1970-01-01T00:00:00${targetOffsetStr}`).getTime()
     }
 
     console.log("targetOffsetMs: ", targetOffsetMs)
