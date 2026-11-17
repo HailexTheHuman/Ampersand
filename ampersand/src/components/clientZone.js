@@ -29,7 +29,7 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
         const parts = new Intl.DateTimeFormat("en-US", {
             zone,
             timeZoneName: "longOffset", // Returns strings like "GMT-07:00" or "GMT"
-        }).formatToParts(new Date());
+        }).formatToParts(new Date(new Date().toLocaleString("en-US", { timeZone: zone, timeZoneName: "short" })));
 
         const tzPart = parts.find((part) => part.type === "timeZoneName")?.value || "";
         console.log("tzPart: ", tzPart)
