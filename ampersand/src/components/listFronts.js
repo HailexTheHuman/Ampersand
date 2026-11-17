@@ -24,6 +24,8 @@ export async function ListFronts({ username }) {
     let altersj = await resultsA.json();
     let alters = altersj.alters
 
+    console.log("fronts: ", fronts)
+    console.log("alters: ", alters)
     
     return (
         <FrontDivs alters={alters} fronts={fronts} today={today}/>

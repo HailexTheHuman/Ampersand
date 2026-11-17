@@ -1,21 +1,8 @@
 import json
-# import os
-# from sklearn.feature_extraction.text import HashingVectorizer
-# from sklearn.linear_model import SGDClassifier
-# from sklearn import metrics
-# vectorizer = HashingVectorizer()
-# from pathlib import Path
-# classifier = SGDClassifier(warm_start=False)
-# import joblib
-# import numpy as np
-# import fastapi
-# import uvicorn
 import psycopg2
 import awscrt
 import botocore
 import boto3
-# import bcrypt
-# from cryptography.fernet import Fernet
 
 import logging
 logger = logging.getLogger()
@@ -46,7 +33,7 @@ def get_history(event, context):
     try:
         from datetime import datetime
         from zoneinfo import ZoneInfo
-        print(f"year {year} month {month} day {day}")
+        logger.info(f"year {year} month {month} day {day}")
         today = datetime(int(year), int(month), int(day), tzinfo=ZoneInfo(timezone)).date()
         logger.info(f"today: {today}")
         auth_token = boto3.client('rds', region_name='us-east-2').generate_db_auth_token(DBHostname='ampersand.cluster-cp86uyi4mruo.us-east-2.rds.amazonaws.com', Port=5432, DBUsername='lambda_user', Region='us-east-2')
@@ -83,7 +70,7 @@ def get_history(event, context):
             # else:
                 fronts[history_table[i][1]] = [{"front_id":history_table[i][0], "name":history_table[i][1], "start_time":history_table[i][2], "end_time":history_table[i][3]}]
         if fronts:
-            print(f"fronts: {fronts}")
+            logger.info(f"fronts: {fronts}")
             # return fastapi.responses.JSONResponse(status_code=200, content={"fronts": fronts})
             return response(200, {"fronts": fronts})
         else:
