@@ -32,8 +32,8 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
     let dayEnd = dayStart + DAY_MS
 
 
-    let startTime = Math.max(new Date(front.start_time).getTime(), dayStart) + targetOffsetMs
-    let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd) + targetOffsetMs
+    let startTime = Math.max(new Date(front.start_time).getTime(), dayStart)
+    let endTime = Math.min(front.end_time ? new Date(front.end_time).getTime() : Date.now(), dayEnd)
     if (endTime <= startTime) return null
 
     // let top = (((dayEnd - endTime) * 2 + 2 * 60 * 60 * 1000) / DAY_MS) * 100
