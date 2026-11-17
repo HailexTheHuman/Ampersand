@@ -27,12 +27,12 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
         // console.log("targetOffset: ", targetOffset)
         // let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const parts = new Intl.DateTimeFormat("en-US", {
-            timeZone: zone,
+            zone,
             timeZoneName: "longOffset", // Returns strings like "GMT-07:00" or "GMT"
         }).formatToParts(new Date());
 
         const tzPart = parts.find((part) => part.type === "timeZoneName")?.value || "";
-
+        console.log("tzPart: ", tzPart)
             // Strip "GMT" to get "-07:00", or return "+00:00" for UTC/GMT
         const targetOffsetStr = tzPart === "GMT" ? "+00:00" : tzPart.replace("GMT", "");
         targetOffsetMs = new Date(`1970-01-01T00:00:00${targetOffsetStr}`).getTime()
