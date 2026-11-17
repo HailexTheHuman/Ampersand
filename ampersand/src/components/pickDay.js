@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 export function setDay(router) {
     let chosenDate = document.getElementById('chooseDate').value;
     const [y, m, d] = chosenDate.split("-").map(Number)
-    let zone = getCookies().timezone
-    console.log("timezone cookie: ", zone)
+    let zone = getCookies().zone
+    console.log("zone cookie: ", zone)
     const next = new Date(y, m - 1, d)
     const fixedDate = [
         next.getFullYear(),
