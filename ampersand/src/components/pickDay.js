@@ -14,7 +14,7 @@ export function setDay(router) {
         next.getFullYear(),
         String(next.getMonth() + 1).padStart(2, "0"),
         String(next.getDate()).padStart(2, "0"),
-        // zone ? zone : "UTC"
+        zone ? zone : "UTC"
     ].join("-")
 
 
