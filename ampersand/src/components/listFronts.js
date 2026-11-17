@@ -11,6 +11,8 @@ export async function ListFronts({ username }) {
     const cookieStore = await cookies()
     let dayCookie = cookieStore.get("day")?.value
     let zoneCookie = cookieStore.get("timezone")?.value
+    console.log("dayCookie: ", dayCookie)
+    console.log("zoneCookie: ", zoneCookie)
     let today = dayCookie ? new Date(dayCookie) : new Date()
     // let timezone = ClientTimeZone()
 

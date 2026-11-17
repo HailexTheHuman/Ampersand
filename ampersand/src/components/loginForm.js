@@ -15,6 +15,7 @@ async function login(formdata, setUsername, setPassword, router) {
         // let resJson = await respone.json()
         let status = await respone.status
         if (status == 200) {
+            console.log(`zone login: ${formdata.zone}`)
             setCookie("username", formdata.username, {maxAge: 14400})
             setCookie("zone", formdata.zone, {maxAge: 14400})
             router.refresh()
@@ -30,6 +31,7 @@ function getFormData() {
     let username = document.getElementById('username').value;
     let password = document.getElementById('password').value;
     let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log(`zone getFormData: ${zone}`)
     return { username, password, zone };
 }
 
