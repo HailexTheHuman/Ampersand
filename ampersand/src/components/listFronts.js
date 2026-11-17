@@ -13,7 +13,17 @@ export async function ListFronts({ username }) {
     let zoneCookie = cookieStore.get("zone")?.value
     console.log("dayCookie: ", dayCookie)
     console.log("zoneCookie: ", zoneCookie)
-    let today = dayCookie ? new Date(new Date(dayCookie).getTime()-24*60*60*1000) : new Date()
+    
+    let targetOffsetMs = 0
+    if (zoneCookie) {
+        const refDate = new Date(`${dayCookie}T00:00:00Z`)
+        const tzDate = new Date(refDate.toLocaleString("en-US", { timeZone: zoneCookie }))
+        const utcDate = new Date(refDate.toLocaleString("en-US", { timeZone: "UTC" }))
+        targetOffsetMs = tzDate.getTime() - utcDate.getTime()
+        console.log("targetOffsetMs: ", targetOffsetMs)
+    }
+    
+    let today = dayCookie ? new Date(new Date(`${dayCookie}T00:00:00Z`).getTime() - targetOffsetMs) : new Date()
     // let timezone = ClientTimeZone()
 
     // let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})

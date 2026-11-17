@@ -4,7 +4,7 @@ import { setCookie, getCookies } from "cookies-next/client"
 import { useRouter } from "next/navigation";
 
 
-export async function setDay(router) {
+export function setDay(router) {
     let chosenDate = document.getElementById('chooseDate').value;
     const [y, m, d] = chosenDate.split("-").map(Number)
     const next = new Date(y, m - 1, d)
@@ -27,7 +27,7 @@ export function PickDay() {
     let maxdate = new Date()
     let maxdateString = `${maxdate.getFullYear()}-12-31`
     return (
-        <form action={async () => await setDay(router)}>
+        <form action={() => setDay(router)}>
             <label htmlFor="chooseDate">Select Date:</label>
             <input type="date" id="chooseDate" name="chooseDate" min="2026-10-01" max={maxdateString} required className="[&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
             <input type="submit"/>
