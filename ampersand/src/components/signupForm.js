@@ -27,7 +27,6 @@ async function signup(formdata) {
 
 function getFormData() {
     let username = document.getElementById('username').value;
-    let username = document.getElementById('username').value;
     // let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let confirm = document.getElementById('passconfirm').value;
@@ -41,7 +40,7 @@ export function SignupForm() {
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
             <main className="flex flex-1 w-full max-w-3xl flex-col items-center py-32 px-16 bg-white dark:bg-black">
                 <h3 id="message"></h3>
-                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())} >
+                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())}>
                     <div className="w-full">
                         <label htmlFor="username" className="sm:mr-[12%]">username</label>
                         <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
