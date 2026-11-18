@@ -56,7 +56,12 @@ def get_history(event, context):
         else:
             # return fastapi.responses.JSONResponse(status_code=404, content={"error": "User not found"})
             return response(404, {"error": "User not found"})
-        cur.execute('SELECT FH.front_id, A.name, to_json(FH.start_time), to_json(FH.end_time) FROM "FrontHistory" as FH join "Alters" as A on FH.alter_id = A.alter_id WHERE FH.user_id = %s and (date(FH.end_time) = %s or FH.end_time is null or date(FH.start_time) = %s or (date(FH.end_time) > %s and date(FH.start_time) < %s))', (user_id,today,today,today,today))
+        cur.execute("""SELECT FH.front_id, A.name, to_json(FH.start_time), to_json(FH.end_time) FROM "FrontHistory" as FH 
+                    join "Alters" as A on FH.alter_id = A.alter_id 
+                    WHERE FH.user_id = %s and 
+                    (date(FH.end_time) in (%s, %s-1, %s+1) or 
+                        FH.end_time is null or 
+                        date(FH.start_time) in (%s, %s-1, %s+1))""", (user_id,today,today,today,today,today,today))
         history_table = cur.fetchall()
         if history_table is None or len(history_table) < 1:
             # return fastapi.responses.JSONResponse(status_code=404, content={"error": "No history found for the specified user"})

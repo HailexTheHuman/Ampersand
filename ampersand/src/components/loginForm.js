@@ -76,7 +76,7 @@ export function LoginForm() {
                         <label htmlFor="password" className="sm:mr-[13%]">password</label>
                         <input type="password" name="password" id="password" value={textPass ? textPass : ""} onChange={handleChangePass} placeholder="password" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full mt-[5%]">
                         <input type="submit" name="submit" id="submit" value={"login"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                     </div>
                 </form>

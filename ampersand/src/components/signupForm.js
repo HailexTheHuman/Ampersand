@@ -15,10 +15,13 @@ async function signup(formdata) {
         let resJson = await respone.json()
         let status = await respone.status
         if (resJson.message == "User created successfully") {
+            setCookie("username", formdata.username, {maxAge: 14400})
+            setCookie("zone", formdata.zone, {maxAge: 14400})
             redirect("/login")
         } else if (status == 409) {
             let messElement = document.getElementById('message');
             messElement.innerHTML = "Username already taken"
+            formdata.formElement.disabled = false;
         }
     }
 }
@@ -28,7 +31,10 @@ function getFormData() {
     // let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let confirm = document.getElementById('passconfirm').value;
-    return { username, password, confirm };
+    let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let formElement = document.getElementById('signupForm');
+    formElement.disabled = true;
+    return { username, password, confirm, zone, formElement };
 }
 
 export function SignupForm() {
@@ -37,7 +43,7 @@ export function SignupForm() {
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
             <main className="flex flex-1 w-full max-w-3xl flex-col items-center py-32 px-16 bg-white dark:bg-black">
                 <h3 id="message"></h3>
-                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())}>
+                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())} id="signupForm">
                     <div className="w-full">
                         <label htmlFor="username" className="sm:mr-[12%]">username</label>
                         <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
@@ -50,7 +56,7 @@ export function SignupForm() {
                         <label htmlFor="passconfirm" className="sm:mr-[2%]">confirm password</label>
                         <input type="password" name="passconfirm" id="passconfirm" placeholder="passconfirm" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]" required/>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full mt-[5%]">
                         <input type="submit" name="submit" id="submit" value={"signup"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                     </div>
                 </form>
