@@ -11,7 +11,7 @@ async function login(formdata, setUsername, setPassword, router) {
         setUsername(formdata.username)
         setPassword(formdata.password)
         // const respone = await fetch(`http://localhost:8080/user?username=${formdata.username}&password=${formdata.password}`);
-        const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user?username=${formdata.username}&password=${formdata.password}`);
+        const respone = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user?username=${encodeURIComponent(formdata.username)}&password=${encodeURIComponent(formdata.password)}`);
         // let resJson = await respone.json()
         let status = await respone.status
         if (status == 200) {

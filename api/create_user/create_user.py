@@ -1,15 +1,4 @@
 import json
-# import os
-# from sklearn.feature_extraction.text import HashingVectorizer
-# from sklearn.linear_model import SGDClassifier
-# from sklearn import metrics
-# vectorizer = HashingVectorizer()
-# from pathlib import Path
-# classifier = SGDClassifier(warm_start=False)
-# import joblib
-# import numpy as np
-# import fastapi
-# import uvicorn
 import psycopg2
 import awscrt
 import botocore
