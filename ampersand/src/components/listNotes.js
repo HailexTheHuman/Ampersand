@@ -10,7 +10,7 @@ export async function ListNotes({ username }) {
     console.log("timezone list notes", detectedZone)
     
     return (
-        <div className="flex flex-col items-center text-center justify-between w-[34%] sm:border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
+        <div className="flex flex-col items-center text-center justify-between sm:w-[34%] w-full sm:border-1 outline-gray-600 border-gray-600 rounded-md sm:overflow-y-auto sm:overscroll-y-auto max-h-[90%] scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
             {notesJ.error && <p>error: {notesJ.error}</p>}
             {await notes && notes.map((note) => (
                 <div key={note.note_id} className="flex flex-col items-center text-center justify-between w-full border-1 outline-gray-600 border-gray-600 rounded-md">

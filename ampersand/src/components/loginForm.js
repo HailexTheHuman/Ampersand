@@ -1,7 +1,6 @@
 "use client"
 
-import { setCookie, hasCookie, getCookie, } from 'cookies-next/client';
-import { refresh } from 'next/cache';
+import { setCookie, getCookie, } from 'cookies-next/client';
 
 import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
@@ -38,6 +37,7 @@ function getFormData() {
 
 
 export function LoginForm() {
+    const [isPending, setIsPending] = useState(false);
 
     const [textUser, setTextUser] = useState("");
     const [textPass, setTextPass] = useState("");
@@ -67,7 +67,7 @@ export function LoginForm() {
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
             <main className="flex flex-1 w-full max-w-3xl flex-col items-center py-32 px-16 bg-white dark:bg-black">
                 <h3 id="message"></h3>
-                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => login(getFormData(), setTextUser, setTextPass, router)}>
+                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" onSubmit={async (e) => { e.preventDefault(); setIsPending(true); if (await login(getFormData(), setTextUser, setTextPass, router)) { router.refresh(); router.push("/profile"); } setIsPending(false); }}>
                     <div className="w-full">
                         <label htmlFor="username" className="sm:mr-[12%]">username</label>
                         <input type="text" name="username" id="username" value={textUser ? textUser : ""} onChange={handleChangeUser} placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
@@ -77,7 +77,7 @@ export function LoginForm() {
                         <input type="password" name="password" id="password" value={textPass ? textPass : ""} onChange={handleChangePass} placeholder="password" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
                     </div>
                     <div className="w-full mt-[5%]">
-                        <input type="submit" name="submit" id="submit" value={"login"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
+                        <input type="submit" name="submit" id="submit" value={isPending ? "Logging in..." : "login"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                     </div>
                 </form>
             </main>

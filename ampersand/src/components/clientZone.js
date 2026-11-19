@@ -21,22 +21,6 @@ export function ClientZoneNote({ note }) {
 
 export function ClientZoneFront({ front, today, colors, index, zone }) {
 
-    // let targetOffsetMs = 0
-    // if (zone) {
-    //     const parts = new Intl.DateTimeFormat("en-US", {
-    //         timeZone: zone,
-    //         timeZoneName: "longOffset",
-    //     }).formatToParts(new Date());
-
-    //     const tzPart = parts.find((part) => part.type === "timeZoneName")?.value || "";
-    //     console.log("tzPart: ", tzPart)
-    //     const targetOffsetStr = tzPart === "GMT" ? "+00:00" : tzPart.replace("GMT", "");
-    //     targetOffsetMs = new Date(`1970-01-01T00:00:00${targetOffsetStr}`).getTime()
-    // }
-    // let targetOffsetMs = new Date().getTimezoneOffset() * 60 * 1000
-
-    // console.log("targetOffsetMs: ", targetOffsetMs)
-
     let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
     let dayEnd = dayStart + DAY_MS

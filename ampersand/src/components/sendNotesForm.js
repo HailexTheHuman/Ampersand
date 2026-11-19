@@ -2,6 +2,7 @@
 
 import { Children, useActionState, useState } from "react";
 // import { AuthorOptions } from "./authorOptions";
+import { osDetector } from "./clientOSDetecter";
 
 
 const initialState = {
@@ -13,10 +14,21 @@ const initialState = {
 
 export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
+    const os = osDetector();
+    console.log("sendNoteForm os ", os)
+
     const [state, formAction, isPending] = useActionState(sendNote, initialState);
 
-    let stylingDiv = notBlurry ? "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center sm:py-32 sm:px-16 bg-white dark:bg-black sm:ml-[2%]" : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
-    let stylingForm = notBlurry ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[55%] w-full" : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]"
+    let stylingDiv = notBlurry ? 
+        ((os === "Windows" || os === "macOS" || os === "Linux") ? "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center sm:py-32 sm:px-16 bg-white dark:bg-black sm:ml-[2%]" 
+            : ((os === "iOS") ? "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center sm:py-32 sm:px-16 bg-white dark:bg-black sm:ml-[2%]" 
+                : "flex flex-1 w-full max-w-[90%] sm:max-h-[90%] flex-col justify-center items-center sm:py-32 sm:px-16 bg-white dark:bg-black sm:ml-[2%]")) 
+        : "flex flex-1 w-full max-w-[90%] h-[90%] flex-col justify-center items-center py-32 px-16 bg-white dark:bg-black ml-[2%]"
+    let stylingForm = notBlurry ? 
+        ((os === "Windows" || os === "macOS" || os === "Linux") ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[55%] w-full" 
+            : ((os === "iOS") ? "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]" 
+                : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]")) 
+        : "flex flex-col items-center text-center justify-between rounded-md min-w-[55%] min-h-[75%]"
     let shyStyle = notBlurry ? "hidden" : "flex flex-row items-center text-center justify-between w-[75%] sm:max-h-[20%] max-w-[90%]"
     return(
         <div className={stylingDiv}>
@@ -42,7 +54,7 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
             <form className={stylingForm} action={formAction}>
                 <div className="w-full sm:flex sm:flex-col sm:flex-row sm:items-center w-[75%] sm:h-[75%] h-[90%] sm:max-h-[90%] max-w-[90%] mb-[10%]">
                     <label htmlFor="note" className="w-[15%] mr-[3%]">note</label>
-                    <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:min-w-[50%] sm:min-h-[50%] sm:w-[75%] sm:h-[75%] resize sm:max-w-[90%] sm:max-h-[75%] field-sizing-content [field-sizing:content] min-h-[75%] h-full mb-[3%] sm:mb-0" required/>
+                    <textarea name="note" id="note" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:min-w-[50%] sm:min-h-[50%] sm:w-[75%] sm:h-[90%] resize sm:max-w-[90%] sm:max-h-[75%]  min-h-[75%] h-[90%] mb-[3%] sm:mb-0" required rows="10"/>
                 </div>
                 {notBlurry &&
                 <div className="w-full mt-[3%]">
@@ -51,7 +63,7 @@ export function SendNoteForm({ username, sendNote, notBlurry, children }) {
                 </div>
                 }
                 <div className="w-full h-[15%] mt-[3%]">
-                    <input type="submit" name="submit" id="submit" value={notBlurry ? "Post Note":"Predict"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
+                    <input type="submit" name="submit" id="submit" value={isPending ? "Submitting..." : (notBlurry ? "Post Note":"Predict")} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                 </div>
             </form>
         </div>

@@ -1,7 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers"
-import { getCookie, hasCookie } from "cookies-next/server";
+import { headers } from "next/headers"
+import { userAgentFromString } from "next/server";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +25,11 @@ export default async function RootLayout({ children }) {
   let store = await cookies()
   const storeBought = store.get("username")?.value
   // console.log("layout storeBought ", storeBought)
-  
+  const headersList = await headers();
+  const uaString = headersList.get('user-agent') || undefined;
+  const { os } = userAgentFromString(uaString);
+  console.log("layout os ", os)
+
   return (
     <html
       lang="en"

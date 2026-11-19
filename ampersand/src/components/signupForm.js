@@ -1,8 +1,11 @@
 "use client"
 
-import { redirect } from "next/navigation";
+import { setCookie, getCookie } from 'cookies-next/client';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 async function signup(formdata) {
+    formdata.setIsPending(true);
     if (formdata.username && formdata.password == formdata.confirm) {
         // const respone = await fetch('http://localhost:8080/user', {
         const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/user', {
@@ -17,30 +20,55 @@ async function signup(formdata) {
         if (resJson.message == "User created successfully") {
             setCookie("username", formdata.username, {maxAge: 14400})
             setCookie("zone", formdata.zone, {maxAge: 14400})
-            redirect("/login")
+            // redirect("/login")
         } else if (status == 409) {
             let messElement = document.getElementById('message');
             messElement.innerHTML = "Username already taken"
+            formdata.setIsPending(false)
+            return false
         }
+    } else if (formdata.password != formdata.confirm) {
+        let messElement = document.getElementById('message');
+        messElement.innerHTML = "Passwords do not match"
+        formdata.setIsPending(false)
+        return false
     }
+    formdata.setIsPending(false)
+    return true
 }
 
-function getFormData() {
+function getFormData(setIsPending) {
+    setIsPending(true)
     let username = document.getElementById('username').value;
     // let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let confirm = document.getElementById('passconfirm').value;
     let zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return { username, password, confirm, zone };
+    return { username, password, confirm, zone, setIsPending };
 }
 
 export function SignupForm() {
-    
+    const [isPending, setIsPending] = useState(false);
+    const router = useRouter()
+
+    const [loggedUsername, setLoggedUsername] = useState(null)
+
+    useEffect(() => {
+        const name = getCookie("username")
+        if (name) {
+            router.replace("/profile")
+            setLoggedUsername(name)
+        }
+    }, [router])
+
+    if (loggedUsername) return null
+
     return(
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
             <main className="flex flex-1 w-full max-w-3xl flex-col items-center py-32 px-16 bg-white dark:bg-black">
                 <h3 id="message"></h3>
-                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData())}>
+                {/* <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => signup(getFormData(setIsPending))}> */}
+                <form className="flex flex-col items-center text-center justify-between sm:w-[60%] w-[80%] border-1 outline-gray-600 border-gray-600 rounded-md" onSubmit={async (e) => { e.preventDefault(); if (await signup(getFormData(setIsPending)) === true) {router.refresh(); router.push("/profile"); }; }}>
                     <div className="w-full">
                         <label htmlFor="username" className="sm:mr-[12%]">username</label>
                         <input type="text" name="username" id="username" placeholder="username" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[6%]" required/>
@@ -54,7 +82,7 @@ export function SignupForm() {
                         <input type="password" name="passconfirm" id="passconfirm" placeholder="passconfirm" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]" required/>
                     </div>
                     <div className="w-full">
-                        <input type="submit" name="submit" id="submit" value={"signup"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
+                        <input type="submit" name="submit" id="submit" value={isPending ? "Signing up..." : "signup"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                     </div>
                 </form>
             </main>
