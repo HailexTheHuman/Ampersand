@@ -21,7 +21,7 @@ export default async function Page() {
     
 
     return (
-        <div className={ (os === "macOS" || os === "Windows" || os === "Linux") ? "flex flex-col items-center w-full h-[78%]" : "flex flex-col items-center w-full h-[78%] sm:h-[400]" }>
+        <div className={ (os.name === "macOS" || os.name === "Windows" || os.name === "Linux") ? "flex flex-col items-center w-full h-[78%]" : "flex flex-col items-center w-full h-[78%] sm:h-[400]" }>
             <h2>Front History</h2>
             <PickDay />
             <ListFronts username={username} os={os}/>
