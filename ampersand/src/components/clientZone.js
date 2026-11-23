@@ -38,6 +38,7 @@ export function ClientZoneFront({ front, today, colors, index, zone }) {
         style={{
             height: `${height}%`,
             top: `${top}%`,
+            left: `${100}%`,
             backgroundColor: colors[index%colors.length]
         }}
         />

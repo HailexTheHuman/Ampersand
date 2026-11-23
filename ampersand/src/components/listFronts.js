@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import { ClientZoneFront } from "./clientZone";
 // import { ClientTimeZone } from "./clientCurrentTime";
 
-export async function ListFronts({ username }) {
+export async function ListFronts({ username, os }) {
     await connection()
     
     const cookieStore = await cookies()
@@ -41,12 +41,12 @@ export async function ListFronts({ username }) {
     console.log("alters: ", alters)
     
     return (
-        <FrontDivs alters={alters} fronts={fronts} today={today} zone={zoneCookie}/>
+        <FrontDivs alters={alters} fronts={fronts} today={today} zone={zoneCookie} os={os}/>
     )
 }
 
 
-async function FrontDivs({ alters, fronts, today, zone }) {
+async function FrontDivs({ alters, fronts, today, zone, os }) {
     // let dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
     let DAY_MS = 24 * 60 * 60 * 1000
     // let dayEnd = dayStart + DAY_MS
@@ -57,8 +57,10 @@ async function FrontDivs({ alters, fronts, today, zone }) {
     let hours = ["Midnight", "11PM", "10PM", "9PM", "8PM", "7PM", "6PM", "5PM", "4PM", "3PM", "2PM", "1PM", "Noon", "11AM", "10AM", "9AM", "8AM", "7AM", "6AM", "5AM", "4AM", "3AM", "2AM", "1AM"]
     let colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
     let alterI = 0
+    let divStyle = "relative flex flex-rows text-center w-[90%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto overflow-x-auto overscroll-x-auto scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 "
+    divStyle += (os === "Windows" || os === "macOS" || os === "Linux") ? "h-[90%]" : "sm:h-[300] h-[90%]" //"h-[90%]"
     return (
-        <div className="relative flex flex-rows text-center w-[90%] h-[90%] border-1 outline-gray-600 border-gray-600 rounded-md overflow-y-auto overscroll-y-auto overflow-x-auto overscroll-x-auto  scrollbar-track-purple-100/0 scrollbar-thumb-purple-600 ">
+        <div className={divStyle}>
             <div id="times" className="relative mx-[2%] h-[100%] min-w-[7%] w-[7%]">
                 {/* <h4 className="fixed h-[10%] order-first">{months[month]} {date.toString()}, {year}</h4> */}
                 {
@@ -78,7 +80,7 @@ async function FrontDivs({ alters, fronts, today, zone }) {
             {alters && alters.map((alter, index) => {
                 alterI++
                 return (
-                    <div key={alter.alter_id} id={alter.alter} className="relative sm:mx-[2%] mx-[8%] h-[100%] min-w-[1%] w-[1%] sm:left-0 left-1/8">
+                    <div key={alter.alter_id} id={alter.alter} className={("relative mx-[8%] h-[100%] min-w-[1%] w-[1%] sm:left-0 left-1/8" + ((os === "Windows" || os === "macOS" || os === "Linux") ? " sm:mx-[2%]" : (os === "iOS") ? " sm:ml-[2%]" : " sm:mx-[4%]"))}>
                         {/* <h4 className="fixed h-[10%] min-w-[1%] w-[1%] -translate-x-1/2 order-first">{alter.alter}</h4> */}
                         {fronts && fronts[alter.alter] && fronts[alter.alter].map((front) => {
 
