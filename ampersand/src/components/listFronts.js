@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { ClientZoneFront } from "./clientZone";
+import { setCookie } from "cookies-next/server";
 // import { ClientTimeZone } from "./clientCurrentTime";
 
 export async function ListFronts({ username, os }) {
@@ -24,6 +25,11 @@ export async function ListFronts({ username, os }) {
     }
     
     let today = dayCookie ? new Date(new Date(`${dayCookie}T00:00:00Z`).getTime() - targetOffsetMs) : new Date()
+    
+    if (!dayCookie) {
+        setCookie("day", today.toISOString().split("T")[0], { maxAge: 3600 })
+    }
+    
     // let timezone = ClientTimeZone()
 
     // let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})
