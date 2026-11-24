@@ -20,7 +20,7 @@ export async function ListFronts({ username, os }) {
         const refDate = new Date(`${day.getFullYear()}-${String(day.getMonth()).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}T00:00:00Z`)
         const tzDate = new Date(refDate.toLocaleString("en-US", { timeZone: zoneCookie }))
         const utcDate = new Date(refDate.toLocaleString("en-US", { timeZone: "UTC" }))
-        targetOffsetMs = tzDate.getTime() - utcDate.getTime() + (refDate.getTime() - tzDate.getTime()) - (24 * 60 * 60 * 1000) // Subtract 24 hours in milliseconds
+        targetOffsetMs = tzDate.getTime() - utcDate.getTime() + (refDate.getTime() - tzDate.getTime())
         console.log("targetOffsetMs: ", targetOffsetMs)
     }
     
@@ -78,7 +78,7 @@ async function FrontDivs({ alters, fronts, today, zone, os }) {
                         )
                     })
                 }
-                <h4 className="relative sticky top-0 order-first w-25 bg-black">{months[month]} {date.toString()}, {year}</h4>
+                <h4 className="relative sticky top-0 order-first w-25 bg-black">{months[month]} {(date-1).toString()}, {year}</h4>
             </div>
             {alters && alters.map((alter, index) => {
                 alterI++
