@@ -20,7 +20,7 @@ export async function ListFronts({ username, os }) {
         const refDate = new Date(`${day.getFullYear()}-${String(day.getMonth()).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}T00:00:00Z`)
         const tzDate = new Date(refDate.toLocaleString("en-US", { timeZone: zoneCookie }))
         const utcDate = new Date(refDate.toLocaleString("en-US", { timeZone: "UTC" }))
-        targetOffsetMs = tzDate.getTime() - utcDate.getTime()
+        targetOffsetMs = utcDate.getTime() - tzDate.getTime()
         console.log("targetOffsetMs: ", targetOffsetMs)
     }
     
