@@ -1,6 +1,7 @@
 "use server"
 
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 
@@ -35,7 +36,7 @@ export async function addNote(prevstate, formData) {
         let resJson = await respone.json()
         let status = await respone.status
         if (status == 201) {
-            revalidatePath('/')
+            redirect('/notes')
         }
         return {predictions:false, most_likely:false, total:0}
     }
