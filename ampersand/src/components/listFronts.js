@@ -3,7 +3,6 @@
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { ClientZoneFront } from "./clientZone";
-import { setCookie } from "cookies-next/server";
 // import { ClientTimeZone } from "./clientCurrentTime";
 
 export async function ListFronts({ username, os }) {
@@ -17,18 +16,16 @@ export async function ListFronts({ username, os }) {
     
     let targetOffsetMs = 0
     if (zoneCookie) {
-        const refDate = new Date(`${dayCookie}T00:00:00Z`)
+        let day = dayCookie ? new Date(`${dayCookie}T00:00:00Z`) : new Date()
+        const refDate = new Date(`${day.getFullYear()}-${String(day.getMonth()).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}T00:00:00Z`)
         const tzDate = new Date(refDate.toLocaleString("en-US", { timeZone: zoneCookie }))
         const utcDate = new Date(refDate.toLocaleString("en-US", { timeZone: "UTC" }))
         targetOffsetMs = tzDate.getTime() - utcDate.getTime()
         console.log("targetOffsetMs: ", targetOffsetMs)
     }
     
-    let today = dayCookie ? new Date(new Date(`${dayCookie}T00:00:00Z`).getTime() - targetOffsetMs) : new Date()
+    let today = dayCookie ? new Date(new Date(`${dayCookie}T00:00:00Z`).getTime() - targetOffsetMs) : new Date(new Date().getTime() - targetOffsetMs)
     
-    if (!dayCookie) {
-        setCookie("day", today.toISOString().split("T")[0], { maxAge: 3600 })
-    }
     
     // let timezone = ClientTimeZone()
 
