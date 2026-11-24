@@ -16,7 +16,6 @@ export default async function Page() {
 
     const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     // const detectedZone = clientZone();
-    console.log("timezone page", detectedZone)
 
     if (!username) redirect("/login")
 

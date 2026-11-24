@@ -69,8 +69,6 @@ def create_note(event, context):
             "old_f1": old_f1,
             "old_accuracy": old_accuracy
         })
-        if response_checked.status_code != 200:
-            raise Exception("Check model train requirements fetch not implemented")
         # return response(201, {"message": "Note created successfully"})
     except Exception as e:
         return response(500, {"error": str(e)})

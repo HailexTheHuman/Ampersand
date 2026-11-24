@@ -15,7 +15,7 @@ const initialState = {
 export function SendNoteForm({ username, sendNote, notBlurry, children }) {
 
     const os = osDetector();
-    console.log("sendNoteForm os ", os)
+    // console.log("sendNoteForm os ", os)
 
     const [state, formAction, isPending] = useActionState(sendNote, initialState);
 

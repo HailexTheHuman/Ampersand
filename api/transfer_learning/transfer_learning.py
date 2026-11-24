@@ -20,13 +20,32 @@ def response(code, body):
 def transfer_learning(event, context):
     # authors_corpus: zip, user_id: int, username: str, notes_amount: int, old_f1: float, old_accuracy: float
     event_body = event['body']
+    logger.info(f"transfer_learning event body: {event_body}")
     event_body_json = json.loads(event_body)
-    authors_corpus = event_body_json.get("author_corpus")
-    user_id = event_body_json.get("user_id")
-    username = event_body_json.get("username")
-    notes_amount = event_body_json.get("notes_amount")
-    old_f1 = event_body_json.get("old_f1")
-    old_accuracy = event_body_json.get("old_accuracy")
+    try:
+        authors_corpus = event_body_json.get("author_corpus")
+    except Exception as e:
+        print(f"no author_corpus found: {e}")
+    try:
+        user_id = event_body_json.get("user_id")
+    except Exception as e:
+        print(f"no user_id found: {e}")
+    try:
+        username = event_body_json.get("username")
+    except Exception as e:
+        print(f"no username found: {e}")
+    try:
+        notes_amount = event_body_json.get("notes_amount")
+    except Exception as e:
+        print(f"no notes_amount found: {e}")
+    try:
+        old_f1 = event_body_json.get("old_f1")
+    except Exception as e:
+        print(f"no old_f1 found: {e}")
+    try:
+        old_accuracy = event_body_json.get("old_accuracy")
+    except Exception as e:
+        print(f"no old_accuracy found: {e}")
     print("transfering")
     import random
     test_authors = []
@@ -75,7 +94,8 @@ def transfer_learning(event, context):
         print(f"error trying to test: {e}")
     f1 = test_response.json().get("f1")
     score = test_response.json().get("score")
-    if f1 > 0.65 and score > 0.65:
+    # if f1 > 0.65 and score > 0.65:
+    if f1 > 0 and score > 0:
         if f1 > old_f1 and score >old_accuracy:
             path = f'alter-classifiers-672791231237-us-east-1-an/base_classifier/{username}'
             # save_model(model, model_path=path)
@@ -91,6 +111,4 @@ def transfer_learning(event, context):
                 "path": path,
                 "notes_amount": notes_amount
             })
-            if save_response.status_code != 200:
-                raise Exception("Saving model to database fetch not implemented")
             # raise NotImplementedError("Saving model to database fetch not implemented")

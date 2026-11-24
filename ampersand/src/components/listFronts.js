@@ -11,8 +11,8 @@ export async function ListFronts({ username, os }) {
     const cookieStore = await cookies()
     let dayCookie = cookieStore.get("day")?.value
     let zoneCookie = cookieStore.get("zone")?.value
-    console.log("dayCookie: ", dayCookie)
-    console.log("zoneCookie: ", zoneCookie)
+    // console.log("dayCookie: ", dayCookie)
+    // console.log("zoneCookie: ", zoneCookie)
     
     let targetOffsetMs = 0
     if (zoneCookie) {
@@ -21,7 +21,7 @@ export async function ListFronts({ username, os }) {
         const tzDate = new Date(refDate.toLocaleString("en-US", { timeZone: zoneCookie }))
         const utcDate = new Date(refDate.toLocaleString("en-US", { timeZone: "UTC" }))
         targetOffsetMs = tzDate.getTime() - utcDate.getTime() + (refDate.getTime() - tzDate.getTime())
-        console.log("targetOffsetMs: ", targetOffsetMs)
+        // console.log("targetOffsetMs: ", targetOffsetMs)
     }
     
     let today = dayCookie ? new Date(new Date(`${dayCookie}T00:00:00Z`).getTime() - targetOffsetMs) : new Date(new Date().getTime() - targetOffsetMs)
@@ -32,7 +32,7 @@ export async function ListFronts({ username, os }) {
     // let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(timezone)}`, { cache: "no-store"})
     let resultsF = await fetch(`https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/get_front_history?username=${encodeURIComponent(username)}&year=${today.getFullYear()}&month=${today.getMonth()+1}&day=${today.getDate()}&zone=${encodeURIComponent(zoneCookie)}`, { cache: "no-store"})
     let frontsj = await resultsF.json();
-    console.log("frontsj: ", frontsj)
+    // console.log("frontsj: ", frontsj)
     let fronts = frontsj.fronts
 
 
@@ -40,8 +40,8 @@ export async function ListFronts({ username, os }) {
     let altersj = await resultsA.json();
     let alters = altersj.alters
 
-    console.log("fronts: ", fronts)
-    console.log("alters: ", alters)
+    // console.log("fronts: ", fronts)
+    // console.log("alters: ", alters)
     
     return (
         <FrontDivs alters={alters} fronts={fronts} today={today} zone={zoneCookie} os={os}/>

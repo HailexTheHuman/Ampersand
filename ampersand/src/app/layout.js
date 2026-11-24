@@ -24,11 +24,9 @@ export const instant = false;
 export default async function RootLayout({ children }) {
   let store = await cookies()
   const storeBought = store.get("username")?.value
-  // console.log("layout storeBought ", storeBought)
   const headersList = await headers();
   const uaString = headersList.get('user-agent') || undefined;
   const { os } = userAgentFromString(uaString);
-  console.log("layout os ", os)
 
   return (
     <html

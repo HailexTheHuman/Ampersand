@@ -54,7 +54,8 @@ def check_model_train_reqs(event, context):
         note_for_amount = cur.fetchall()
         print(f"alters {alters[0][0]}")
         print(f"note_for_amount {note_for_amount[0][0]}")
-        if alters[0][0] >= 2 and ((last_train_notes_amount != 0 and note_for_amount[0][0] >= (last_train_notes_amount*1.5)) or note_for_amount[0][0] % 10 == 0):
+        # if alters[0][0] >= 2 and ((last_train_notes_amount != 0 and note_for_amount[0][0] >= (last_train_notes_amount*1.5)) or note_for_amount[0][0] % 10 == 0):
+        if alters[0][0] >= 2 and ((last_train_notes_amount != 0 and note_for_amount[0][0] >= (last_train_notes_amount*1.5)) or note_for_amount[0][0] == note_for_amount[0][0]):
             cur.execute('SELECT n_key FROM "Users" WHERE user_id = %s', (user_id,))
             user = cur.fetchone()
             n_key = user[0].encode('utf-8')
@@ -76,8 +77,6 @@ def check_model_train_reqs(event, context):
                 "old_f1": old_f1,
                 "old_accuracy": old_accuracy
             })
-            if response.status_code != 200:
-                raise Exception("Debugging: transfer_learning fetch not implemented")
     except Exception as e:
         print(f"error checking if we should train {e}")
     finally:

@@ -6,7 +6,7 @@ import { getCurrentTimestampWithOffset } from "./addNote";
 
 
 export async function SetFront(formData) {
-    console.log("hit setfront")
+    // console.log("hit setfront")
     const username = (await cookies()).get("username")?.value
     const zone = (await cookies()).get("zone")?.value
     const alter_name = formData.get("name")
@@ -19,9 +19,9 @@ export async function SetFront(formData) {
         body: JSON.stringify({ username:username, zone:zone, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
-    console.log("responeJ set front", responeJ)
+    // console.log("responeJ set front", responeJ)
     let status = respone.status
-    console.log("status set front", status)
+    // console.log("status set front", status)
     if (status == 201) {
         revalidatePath('/')
     }
@@ -34,7 +34,7 @@ export async function AddFront(formData) {
     const zone = (await cookies()).get("zone")?.value
     const alter_name = formData.get("name")
     const time = await getCurrentTimestampWithOffset()
-    console.log("current time is: ", time)
+    // console.log("current time is: ", time)
     const respone = await fetch('https://z0x5iyn8v6.execute-api.us-east-2.amazonaws.com/Prod/add_to_front', {
         method: 'POST',
         headers: {
@@ -43,9 +43,9 @@ export async function AddFront(formData) {
         body: JSON.stringify({ username:username, zone:zone, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
-    console.log("responeJ add front", responeJ)
+    // console.log("responeJ add front", responeJ)
     let status = respone.status
-    console.log("status add front", status)
+    // console.log("status add front", status)
     if (status == 201) {
         revalidatePath('/')
     }
@@ -65,9 +65,9 @@ export async function RemoveFront(formData) {
         body: JSON.stringify({ username:username, zone:zone, alter_name:alter_name, time:time })
     });
     let responeJ = await respone.json()
-    console.log("responeJ remove front", responeJ)
+    // console.log("responeJ remove front", responeJ)
     let status = respone.status
-    console.log("status remove front", status)
+    // console.log("status remove front", status)
     if (status == 201) {
         revalidatePath('/')
     }
