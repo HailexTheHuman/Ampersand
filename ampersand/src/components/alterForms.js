@@ -1,7 +1,7 @@
 "use client"
 
 import { redirect } from "next/navigation";
-
+import { useState } from "react";
 
 async function addAlter(formdata, username) {
     if (formdata.name) {
@@ -22,17 +22,17 @@ async function addAlter(formdata, username) {
 }
 
 function getAddFormData() {
-    let name = document.getElementById('name').value;
+    let name = document.getElementById('name').value.trim();
     let description = document.getElementById('description').value;
     return { name, description};
 }
 
 export function AddAlterForm({ username }) {
-    
+    let [isPending, setIsPending] = useState(false)
     return(
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black sm:max-w-[45%] sm:max-h-[90%]">
             {/* <h3 id="message"></h3> */}
-            <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => addAlter(getAddFormData(), username)}>
+            <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => {setIsPending(true); addAlter(getAddFormData(), username); setIsPending(false)}}>
                 <p className="text-center">Add Alter</p>
                 <div className="w-full max-h-[40%] min-h-[20%] sm:mt-[6%]">
                     <label htmlFor="name" className="">name</label>
@@ -43,7 +43,7 @@ export function AddAlterForm({ username }) {
                     <input type="text" name="description" id="description" placeholder="description" className="border-2 outline-purple-700 border-purple-700 rounded-md sm:ml-[2%]"/>
                 </div>
                 <div className="w-full max-h-[40%] min-h-[20%] ">
-                    <input type="submit" name="submit" id="submit" value={"Add alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
+                    <input type="submit" name="submit" id="submit" value={isPending ? "Adding alter..." : "Add alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                 </div>
             </form>
         </div>
@@ -70,16 +70,17 @@ async function editAlter(formdata, username) {
 
 function getEditFormData() {
     let oldName = document.getElementById('oldName').value;
-    let newName = document.getElementById('newName').value;
+    let newName = document.getElementById('newName').value.trim();
     let description = document.getElementById('descriptionEdit').value;
     return { oldName, newName, description};
 }
 
 export function EditAlterForm({ username }) {
-    
+    let [isPending, setIsPending] = useState(false)
+
     return(
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black sm:max-w-[40%] ml-[2%] sm:max-h-[90%]">
-            <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => editAlter(getEditFormData(), username)}>
+            <form className="flex flex-col items-center text-center  min-w-[70%] min-h-[35%] border-1 outline-gray-600 border-gray-600 rounded-md" action={() => {setIsPending(true); editAlter(getEditFormData(), username); setIsPending(false)}}>
                 <p className="text-center">Edit Alter</p>
                 <div className="w-full max-h-[30%] min-h-[20%] sm:mt-[4%]">
                     <label htmlFor="oldName" className="">old name</label>
@@ -94,7 +95,7 @@ export function EditAlterForm({ username }) {
                     <input type="text" name="descriptionEdit" id="descriptionEdit" placeholder="description (not required)" className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                 </div>
                 <div className="w-full max-h-[30%] min-h-[20%] ">
-                    <input type="submit" name="submit" id="submit" value={"Edit alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
+                    <input type="submit" name="submit" id="submit" value={isPending ? "Editing alter..." : "Edit alter"} className="border-2 outline-purple-700 border-purple-700 rounded-md"/>
                 </div>
             </form>
         </div>
