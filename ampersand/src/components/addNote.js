@@ -35,6 +35,8 @@ export async function addNote(prevstate, formData) {
         });
         let resJson = await respone.json()
         let status = await respone.status
+        console.log("add note status:", status)
+        console.log("add note response:", resJson)
         if (status == 201) {
             redirect('/notes')
         }
